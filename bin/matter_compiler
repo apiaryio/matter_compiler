@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+require 'matter_compiler/cli'
+MatterCompiler::CLI.start
