@@ -1,0 +1,15 @@
+language: ruby
+rvm:
+  - 1.9.3
+  - 2.1.0
+script: "npm install && npm test"
+before_install:
+  - git submodule update --init --recursive
+notifications:
+  email:
+    recipients:
+      - z@apiary.io  
+    on_success: change
+    on_failure: always
+  hipchat:
+    secure: "m5NzHq8NoO6dvKFCgOuo8sV3ALe601IcZ4nvFSmmG79tx9YhwC5dOaZ0YgihZrLvdyxRDe7Tf9jtgicMkZ//uEiQ8+0qkXvxRkfu8KbdR09JbkbkkgoD3mIvw5f09H0HDhddZWcPHmBOjjGLrlWlBXfbqBX3gEHpHeumWdJ6nRA="
