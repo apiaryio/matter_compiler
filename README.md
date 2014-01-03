@@ -1,4 +1,4 @@
-# Matter Compiler
+# Matter Compiler [![Build Status](https://travis-ci.org/apiaryio/matter_compiler.png?branch=master)](https://travis-ci.org/apiaryio/matter_compiler)
 
 Matter Compiler is a [API Blueprint AST Media Types](https://github.com/apiaryio/snowcrash/wiki/API-Blueprint-AST-Media-Types) to [API Blueprint](https://apiblueprint.org) conversion tool. It composes an API blueprint from its serialzed AST media-type.
 
