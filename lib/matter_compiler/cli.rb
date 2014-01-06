@@ -17,8 +17,11 @@ module MatterCompiler
       command = :compose if args.first.nil? || @command.nil?
       command = @command if @command
 
-      if command == :compose && args.first.nil? && options[:format].nil?
-        puts "missing --format option"
+      if command == :compose && args.first.nil? && (options[:format].nil? || options[:format] == :unknown_ast)
+
+        print options[:format] ? "invalid value of" : "missing"
+        print " '--format option'\n\n"
+
         CLI::help
         exit 1
         end
@@ -39,7 +42,7 @@ module MatterCompiler
       options = {}
       options_parser = OptionParser.new do |opts|
         opts.on('-f', '--format (yaml|json)') do |format|
-          options[:format] = format
+          options[:format] = Composer.parse_format(format)
           @command = :compose
         end
 

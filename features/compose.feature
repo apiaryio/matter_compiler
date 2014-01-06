@@ -29,7 +29,7 @@ Feature: Compose
       """
 
   Scenario: Compose blueprint from an YAML file
-    When I run `matter_compiler tmp/aruba/ast.yaml`
+    When I run `matter_compiler ast.yaml`
     Then the output should contain:
       """
       # My API
@@ -44,7 +44,7 @@ Feature: Compose
       """
 
   Scenario: Compose blueprint from a JSON file
-    When I run `matter_compiler tmp/aruba/ast.json`
+    When I run `matter_compiler ast.json`
     Then the output should contain:
       """
       # My API
