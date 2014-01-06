@@ -1,14 +1,7 @@
 require 'yaml'
 require 'json'
 require 'matter_compiler/blueprint'
-
-class Object
-  def deep_symbolize_keys
-    return self.inject({}){|memo,(k,v)| memo[k.to_sym] = v.deep_symbolize_keys; memo} if self.is_a? Hash
-    return self.inject([]){|memo,v    | memo           << v.deep_symbolize_keys; memo} if self.is_a? Array
-    return self
-  end
-end
+require 'object'
 
 module MatterCompiler
 
@@ -62,7 +55,7 @@ module MatterCompiler
         input = self.read_file(file)
       end
 
-      if input.nil? || input.empty?
+      if input.blank?
         puts "Empty input"
         exit
       end
@@ -79,10 +72,10 @@ module MatterCompiler
         abort "Undefined input format"
       end
 
-      # Process AST hash
+      # Process the AST hash
       blueprint = Blueprint.new(ast_hash)
 
-      # TODO: use stdout for now, add serialization options later
+      # TODO: use $stdout for now, add serialization options later
       puts blueprint.serialize
     end
   

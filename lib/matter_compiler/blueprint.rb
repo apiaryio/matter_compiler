@@ -76,8 +76,8 @@ module MatterCompiler
     def serialize
       # TODO: Serialize Metadata and Resource Groups      
       buffer = ""
-      buffer << "# #{@name}\n" unless @name.nil? || @name.empty?
-      buffer << "#{@description}\n" unless @description.nil? || @description.empty?
+      buffer << "# #{@name}\n" unless @name.blank?
+      buffer << "#{@description}\n" unless @description.blank?
       buffer
     end
 
