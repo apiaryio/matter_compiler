@@ -17,8 +17,13 @@ Or install it yourself as:
     $ gem install matter_compiler
 
 ## Usage
+To compose a blueprint from a serialized AST media-type run:
 
-TODO: Write usage instructions here
+```sh
+$ matter_compiler path/to/ast.yaml
+```
+
+See the [compose feature](features/compose.feature) for details or run `matter_compiler --help`.
 
 ## Contributing
 
