@@ -124,7 +124,7 @@ module MatterCompiler
     def load_ast_hash!(hash)
       super(hash)
       
-      # TODO: Load Metadata
+      # Load Metadata
       unless hash[:metadata].empty?
         @metadata = Metadata.new(hash[:metadata])
       end

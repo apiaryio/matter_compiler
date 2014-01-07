@@ -2,7 +2,6 @@ require 'minitest/autorun'
 require 'matter_compiler/blueprint'
 
 class ResourceGroupTest < Minitest::Unit::TestCase
-
   AST_HASH = {
     :name => "My Resource Group",
     :description => "Lorem Ipsum at [Apiary](http://apiary.io)\n",
@@ -25,5 +24,4 @@ Lorem Ipsum at [Apiary](http://apiary.io)
     resource_group = MatterCompiler::ResourceGroup.new(ResourceGroupTest::AST_HASH)
     assert_equal BLUEPRINT, resource_group.serialize
   end
-
 end

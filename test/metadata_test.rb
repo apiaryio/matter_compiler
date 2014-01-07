@@ -2,7 +2,6 @@ require 'minitest/autorun'
 require 'matter_compiler/blueprint'
 
 class MetadataTest < Minitest::Unit::TestCase
-
   AST_HASH = {
     :FORMAT => {
       :value => "1A"      
@@ -25,5 +24,4 @@ class MetadataTest < Minitest::Unit::TestCase
     metadata = MatterCompiler::Metadata.new(MetadataTest::AST_HASH)
     assert_equal MetadataTest::BLUEPRINT, metadata.serialize
   end
-
 end
