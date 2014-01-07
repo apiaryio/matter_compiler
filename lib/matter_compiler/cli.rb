@@ -22,7 +22,7 @@ module MatterCompiler
         print options[:format] ? "invalid value of" : "missing"
         print " '--format option'\n\n"
 
-        CLI::help
+        CLI.help
         exit 1
         end
 
@@ -32,7 +32,7 @@ module MatterCompiler
       when :version
         puts MatterCompiler::VERSION
       else
-        CLI::help
+        CLI.help
       end
           
     end
@@ -60,7 +60,7 @@ module MatterCompiler
 
     rescue OptionParser::InvalidOption => e
       puts e
-      CLI::help
+      CLI.help
       exit 1
     end
 
