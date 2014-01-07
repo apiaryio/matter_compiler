@@ -3,6 +3,8 @@
   Background:
     Given a file named "blueprint.md" with:
       """
+      FORMAT: 1A
+
       # My API
       Description of *My API*.
 
@@ -13,8 +15,9 @@
 
     And a file named "ast.yaml" with:
       """
-      _version: 1.0
       metadata:
+        FORMAT:
+          value: 1A
       name: My API
       description: "Description of *My API*.\n\n"
       resourceGroups:
@@ -27,7 +30,11 @@
       """
       {
         "_version": "1.0",
-        "metadata": {},
+        "metadata": {
+          "FORMAT": {
+            "value": "1A"
+          }
+        },
         "name": "My API",
         "description": "Description of *My API*.\n\n",
         "resourceGroups": [

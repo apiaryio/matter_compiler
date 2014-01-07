@@ -4,16 +4,14 @@ module MatterCompiler
   # counterparts (https://github.com/apiaryio/snowcrash/blob/master/src/Blueprint.h)
   # until Matter Compiler becomes a wrapper for Snow Crash.
 
-  class BlueprintObject
-
+  # Blueprint Node
+  class BlueprintNode
     def initialize(hash = nil)
       load_ast_hash!(hash) if hash
     end
 
     # Load AST has into block
     def load_ast_hash!(hash)
-      @name = hash[:name]
-      @description = hash[:description]
     end
 
     # Serialize block to a Markdown string
@@ -21,7 +19,36 @@ module MatterCompiler
     end
   end
 
-  class Parameter < BlueprintObject
+  # Named Blueprint Node
+  class NamedBlueprintNode < BlueprintNode
+    def load_ast_hash!(hash)
+      @name = hash[:name]
+      @description = hash[:description]
+    end
+  end
+
+  class Metadata < BlueprintNode
+    attr_accessor :collection
+
+    def load_ast_hash!(hash)
+      return if hash.empty?
+
+      @collection = Array.new
+      hash.each do |key, value_hash|
+        @collection << Hash[key, value_hash[:value]]
+      end
+    end
+
+    def serialize
+      buffer = ""
+      collection.each do |hash|
+        buffer << "#{hash.keys[0]}: #{hash.values[0]}\n"
+      end
+      buffer
+    end
+  end
+
+  class Parameter < NamedBlueprintNode
     attr_accessor :name
     attr_accessor :description
     attr_accessor :type
@@ -31,7 +58,7 @@ module MatterCompiler
     attr_accessor :values
   end
 
-  class Payload < BlueprintObject
+  class Payload < NamedBlueprintNode
     attr_accessor :name
     attr_accessor :description
     attr_accessor :parameters
@@ -40,14 +67,14 @@ module MatterCompiler
     attr_accessor :schema
   end
 
-  class TransactionExample < BlueprintObject
+  class TransactionExample < NamedBlueprintNode
     attr_accessor :name
     attr_accessor :description
     attr_accessor :requests
     attr_accessor :responses
   end
 
-  class Action < BlueprintObject
+  class Action < NamedBlueprintNode
     attr_accessor :method
     attr_accessor :name
     attr_accessor :description
@@ -56,7 +83,7 @@ module MatterCompiler
     attr_accessor :examples
   end
   
-  class Resource < BlueprintObject
+  class Resource < NamedBlueprintNode
     attr_accessor :uri_template
     attr_accessor :name
     attr_accessor :description
@@ -66,7 +93,7 @@ module MatterCompiler
     attr_accessor :actions
   end
 
-  class ResourceGroup < BlueprintObject
+  class ResourceGroup < NamedBlueprintNode
     attr_accessor :name
     attr_accessor :description
     attr_accessor :resources
@@ -79,24 +106,16 @@ module MatterCompiler
 
     def serialize
       buffer = ""
-
-      # Group Name
       buffer << "# Group #{@name}\n" unless @name.blank?
-
-      # Group Description
       buffer << "#{@description}" unless @description.blank?
-
-      # Delimiter
-      #buffer << "\n" unless buffer.empty?
 
       # TODO: Serialize Resources      
 
       buffer
     end    
-
   end
 
-  class Blueprint < BlueprintObject
+  class Blueprint < NamedBlueprintNode
     attr_accessor :metadata
     attr_accessor :name
     attr_accessor :description
@@ -106,7 +125,9 @@ module MatterCompiler
       super(hash)
       
       # TODO: Load Metadata
-      @metadata = nil
+      unless hash[:metadata].empty?
+        @metadata = Metadata.new(hash[:metadata])
+      end
       
       # Load Resource Groups
       unless hash[:resourceGroups].empty?
@@ -117,24 +138,13 @@ module MatterCompiler
 
     def serialize
       buffer = ""
-
-      # TODO: Serialize Metadata
-
-      # API Name
+      buffer << "#{@metadata.serialize}\n" unless @metadata.nil?      
       buffer << "# #{@name}\n" unless @name.blank?
-
-      # API Description
       buffer << "#{@description}" unless @description.blank?
 
-      # Delimiter
-      #buffer << "\n" unless buffer.empty?
-
-      # Resource Groups
       @resource_groups.each { |group| buffer << group.serialize } unless @resource_groups.nil?
 
       buffer
     end
-
   end
-
 end
