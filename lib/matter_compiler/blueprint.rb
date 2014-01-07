@@ -4,7 +4,24 @@ module MatterCompiler
   # counterparts (https://github.com/apiaryio/snowcrash/blob/master/src/Blueprint.h)
   # until Matter Compiler becomes a wrapper for Snow Crash.
 
-  class Parameter
+  class BlueprintObject
+
+    def initialize(hash = nil)
+      load_ast_hash!(hash) if hash
+    end
+
+    # Load AST has into block
+    def load_ast_hash!(hash)
+      @name = hash[:name]
+      @description = hash[:description]
+    end
+
+    # Serialize block to a Markdown string
+    def serialize
+    end
+  end
+
+  class Parameter < BlueprintObject
     attr_accessor :name
     attr_accessor :description
     attr_accessor :type
@@ -14,7 +31,7 @@ module MatterCompiler
     attr_accessor :values
   end
 
-  class Payload
+  class Payload < BlueprintObject
     attr_accessor :name
     attr_accessor :description
     attr_accessor :parameters
@@ -23,14 +40,14 @@ module MatterCompiler
     attr_accessor :schema
   end
 
-  class TransactionExample
+  class TransactionExample < BlueprintObject
     attr_accessor :name
     attr_accessor :description
     attr_accessor :requests
     attr_accessor :responses
   end
 
-  class Action
+  class Action < BlueprintObject
     attr_accessor :method
     attr_accessor :name
     attr_accessor :description
@@ -39,7 +56,7 @@ module MatterCompiler
     attr_accessor :examples
   end
   
-  class Resource
+  class Resource < BlueprintObject
     attr_accessor :uri_template
     attr_accessor :name
     attr_accessor :description
@@ -49,35 +66,72 @@ module MatterCompiler
     attr_accessor :actions
   end
 
-  class ResourceGroup
+  class ResourceGroup < BlueprintObject
     attr_accessor :name
     attr_accessor :description
     attr_accessor :resources
-  end
-
-  class Blueprint
-    attr_accessor :metadata
-    attr_accessor :name
-    attr_accessor :description
-    attr_accessor :resourceGroups
-
-    def initialize(hash = nil)
-      load_ast_hash!(hash) if hash
-    end
 
     def load_ast_hash!(hash)
-      # TODO: Load Metadata and Resource Groups
-      @metadata = nil
-      @name = hash[:name]
-      @description = hash[:description]
-      @resourceGroups = nil
+      super(hash)
+
+      # TODO: Load Resources      
     end
 
     def serialize
-      # TODO: Serialize Metadata and Resource Groups      
       buffer = ""
+
+      # Group Name
+      buffer << "# Group #{@name}\n" unless @name.blank?
+
+      # Group Description
+      buffer << "#{@description}" unless @description.blank?
+
+      # Delimiter
+      #buffer << "\n" unless buffer.empty?
+
+      # TODO: Serialize Resources      
+
+      buffer
+    end    
+
+  end
+
+  class Blueprint < BlueprintObject
+    attr_accessor :metadata
+    attr_accessor :name
+    attr_accessor :description
+    attr_accessor :resource_groups
+
+    def load_ast_hash!(hash)
+      super(hash)
+      
+      # TODO: Load Metadata
+      @metadata = nil
+      
+      # Load Resource Groups
+      unless hash[:resourceGroups].empty?
+        @resource_groups = Array.new
+        hash[:resourceGroups].each { |group_hash| @resource_groups << ResourceGroup.new(group_hash) }
+      end
+    end
+
+    def serialize
+      buffer = ""
+
+      # TODO: Serialize Metadata
+
+      # API Name
       buffer << "# #{@name}\n" unless @name.blank?
-      buffer << "#{@description}\n" unless @description.blank?
+
+      # API Description
+      buffer << "#{@description}" unless @description.blank?
+
+      # Delimiter
+      #buffer << "\n" unless buffer.empty?
+
+      # Resource Groups
+      @resource_groups.each { |group| buffer << group.serialize } unless @resource_groups.nil?
+
       buffer
     end
 
