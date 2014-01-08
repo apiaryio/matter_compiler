@@ -65,6 +65,69 @@ module MatterCompiler
     attr_accessor :headers
     attr_accessor :body
     attr_accessor :schema
+
+    def load_ast_hash!(hash)
+      super(hash)
+
+      @body = hash[:body]
+      @schema = hash[:schema]
+      # TODO: Parameters, Headers
+    end
+
+    def serialize
+      # Name is serialized in Payload successors
+      buffer = ""
+
+      unless @description.blank?
+        @description.each_line { |line| buffer << "  #{line}" }
+        buffer << "\n"
+      end
+
+      unless @body.blank?
+        buffer << "    + Body\n\n"
+        @body.each_line { |line| buffer << "            #{line}" }
+        buffer << "\n"
+      end
+
+      unless @schema.blank?
+        buffer << "    + Schema\n\n"
+        @schema.each_line { |line| buffer << "            #{line}" }
+        buffer << "\n"
+      end
+
+      # TODO: Parameters, Headers
+      buffer
+    end    
+  end
+
+  class Model < Payload
+    def serialize
+      buffer = ""
+      buffer << "+ Model"
+      buffer << " #{@name}" unless @name.blank?
+      buffer << "\n\n"
+      buffer << super
+    end
+  end
+
+  class Request < Payload
+    def serialize
+      buffer = ""
+      buffer << "+ Request"
+      buffer << " #{@name}" unless @name.blank?
+      buffer << "\n\n"
+      buffer << super
+    end    
+  end
+
+  class Response < Payload;
+    def serialize
+      buffer = ""
+      buffer << "+ Response"
+      buffer << " #{@name}" unless @name.blank?
+      buffer << "\n\n"
+      buffer << super
+    end    
   end
 
   class TransactionExample < NamedBlueprintNode
@@ -91,6 +154,27 @@ module MatterCompiler
     attr_accessor :parameters
     attr_accessor :headers
     attr_accessor :actions
+
+    def load_ast_hash!(hash)
+      super(hash)
+
+      @uri_template = hash[:uriTemplate]      
+      # TODO: Load Model, Parameters, Headers, Actions
+    end
+
+    def serialize
+      buffer = ""
+      if @name.blank?
+        buffer << "## #{@uri_template}\n"
+      else
+        buffer << "## #{@name} [#{@uri_template}]\n"
+      end
+
+      buffer << "#{@description}" unless @description.blank?
+
+      # TODO: Serialize Model, Parameters, Headers, Actions
+      buffer
+    end
   end
 
   class ResourceGroup < NamedBlueprintNode
@@ -101,7 +185,10 @@ module MatterCompiler
     def load_ast_hash!(hash)
       super(hash)
 
-      # TODO: Load Resources      
+      unless hash[:resources].empty?
+        @resources = Array.new
+        hash[:resources].each { |resource_hash| @resources << Resource.new(resource_hash) }
+      end
     end
 
     def serialize
@@ -109,10 +196,9 @@ module MatterCompiler
       buffer << "# Group #{@name}\n" unless @name.blank?
       buffer << "#{@description}" unless @description.blank?
 
-      # TODO: Serialize Resources      
-
+      @resources.each { |resource| buffer << resource.serialize } unless @resources.nil?
       buffer
-    end    
+    end
   end
 
   class Blueprint < NamedBlueprintNode
@@ -143,7 +229,6 @@ module MatterCompiler
       buffer << "#{@description}" unless @description.blank?
 
       @resource_groups.each { |group| buffer << group.serialize } unless @resource_groups.nil?
-
       buffer
     end
   end
