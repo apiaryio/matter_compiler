@@ -8,10 +8,16 @@
       # My API
       Description of *My API*.
 
-      # GET /
-      + Response 200 (text/plain)
+      ## /
+      ### GET
+      + Response 200
+          + Headers
 
-              Hello World!
+                  Content-Type: text/plain
+
+          + Body
+
+                  Hello World!
 
       # Group Red
       Description of *Red* Group.
@@ -19,10 +25,12 @@
       ## My Resource [/myresource/{id}]
       Description of *My Resource*
 
-      + Model (application/json)
+      + Model
           + Headers
 
+                  Content-Type: application/json
                   X-Header: 1
+
           + Body
 
                   { "message": "Hello World" }
@@ -32,19 +40,37 @@
                   { "$schema": "http://json-schema.org/draft-03/schema" }
 
       + Parameters
-         + id = `42` (optional, number, `1000`) ... Parameter `id` description.
+          + id = `42` (number, optional, `1000`)
+
+              Parameter `id` description.
 
       ### Retrieve My Resource [GET]
       + Response 200
+          + Headers
 
-          [My Resource][]
+                  Content-Type: application/json
+                  X-Header: 1
+
+          + Body
+
+                  { "message": "Hello World" }
+
+          + Schema
+
+                  { "$schema": "http://json-schema.org/draft-03/schema" }
 
       ### Create My Resource [POST]
-      + Request (text/plain)
+      + Request
+          + Headers
 
-              Ni Hao!
+                  Content-Type: text/plain
+
+          + Body
+
+                  Ni Hao!
 
       + Response 204
+
       """
 
     And a file named "ast.yaml" with:
@@ -101,7 +127,7 @@
             schema: "{ \"$schema\": \"http://json-schema.org/draft-03/schema\" }\n"
           parameters:
             id:
-              description: "Parameter `id` description."
+              description: "Parameter `id` description.\n"
               type: number
               required: false
               default: 42
@@ -150,6 +176,7 @@
                 headers:
                 body:
                 schema:
+
       """
 
     And a file named "ast.json" with:
@@ -231,7 +258,7 @@
                   },
                 "parameters": {
                   "id": {
-                    "description": "Parameter `id` description.",
+                    "description": "Parameter `id` description.\n",
                     "type": "number",
                     "required": false,
                     "default": "42",
@@ -312,6 +339,7 @@
           }
         ]
       }
+
       """
 
   Scenario: Compose blueprint from an YAML stdin input

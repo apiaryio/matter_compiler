@@ -1,5 +1,6 @@
 require 'minitest/autorun'
 require 'matter_compiler/blueprint'
+require_relative 'headers_test'
 
 #
 # Payload test consists of testing Model, Request and Response
@@ -17,9 +18,9 @@ class ModelTest < Minitest::Unit::TestCase
   }
 
   BLUEPRINT = \
-%Q{+ Model My Resource
+%Q{+ Model
 
-  Lorem ipsum dolor sit amet.
+    Lorem ipsum dolor sit amet.
 
     + Body
 
@@ -60,8 +61,8 @@ class RequestTest < Minitest::Unit::TestCase
   BLUEPRINT = \
 %Q{+ Request Name
 
-  Lorem
-  Ipsum
+    Lorem
+    Ipsum
 
     + Body
 
@@ -90,15 +91,14 @@ class ResponseTest < Minitest::Unit::TestCase
     :name => "200",
     :description => nil,
     :parameters => nil,
-    :headers => nil,
+    :headers => HeadersTest::AST_HASH,
     :body => "Hello\nWorld!\n",
     :schema => nil
   }
 
   BLUEPRINT = \
 %Q{+ Response 200
-
-    + Body
+#{HeadersTest::BLUEPRINT_NESTED}    + Body
 
             Hello
             World!
@@ -110,7 +110,11 @@ class ResponseTest < Minitest::Unit::TestCase
     assert_equal ResponseTest::AST_HASH[:name], response.name
     assert_equal ResponseTest::AST_HASH[:description], response.description
     assert_equal nil, response.parameters
-    assert_equal nil, response.headers
+
+    assert_instance_of MatterCompiler::Headers, response.headers
+    assert_instance_of Array, response.headers.collection
+    assert_equal HeadersTest::AST_HASH.keys.length, response.headers.collection.length
+
     assert_equal ResponseTest::AST_HASH[:body], response.body
     assert_equal ResponseTest::AST_HASH[:schema], response.schema
   end

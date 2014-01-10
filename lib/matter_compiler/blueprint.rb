@@ -4,8 +4,12 @@ module MatterCompiler
   # counterparts (https://github.com/apiaryio/snowcrash/blob/master/src/Blueprint.h)
   # until Matter Compiler becomes a wrapper for Snow Crash.
 
-  # Blueprint Node
+  #
+  # Blueprint AST node
+  #
   class BlueprintNode
+    ONE_INDENTATION_LEVEL = "    "
+
     def initialize(hash = nil)
       load_ast_hash!(hash) if hash
     end
@@ -15,11 +19,13 @@ module MatterCompiler
     end
 
     # Serialize block to a Markdown string
-    def serialize
+    def serialize(level = 0)
     end
   end
 
-  # Named Blueprint Node
+  #
+  # Named Blueprint AST node
+  #
   class NamedBlueprintNode < BlueprintNode
     def load_ast_hash!(hash)
       @name = hash[:name]
@@ -27,7 +33,10 @@ module MatterCompiler
     end
   end
 
-  class Metadata < BlueprintNode
+  #
+  # Key-value collection
+  #
+  class KeyValueCollection < BlueprintNode
     attr_accessor :collection
 
     def load_ast_hash!(hash)
@@ -39,16 +48,42 @@ module MatterCompiler
       end
     end
 
-    def serialize
+    def serialize(level = 0)
       buffer = ""
-      collection.each do |hash|
+      @collection.each do |hash|
+        level.times { buffer << ONE_INDENTATION_LEVEL }
         buffer << "#{hash.keys[0]}: #{hash.values[0]}\n"
       end
+
+      buffer << "\n" unless @collection.blank?
       buffer
-    end
+    end    
   end
 
-  class Parameter < NamedBlueprintNode
+  #
+  # Collection of metadata
+  #
+  class Metadata < KeyValueCollection
+  end
+
+  #
+  # Collection of headers 
+  #
+  class Headers < KeyValueCollection
+    def serialize(level = 0)
+      return "" if @collection.blank?
+
+      buffer = ""
+      level.times { buffer << ONE_INDENTATION_LEVEL }
+      buffer << "+ Headers\n\n"
+      buffer << super(level + 2)
+    end      
+  end;
+
+  #
+  # One URI parameter
+  #
+  class Parameter < BlueprintNode
     attr_accessor :name
     attr_accessor :description
     attr_accessor :type
@@ -56,8 +91,114 @@ module MatterCompiler
     attr_accessor :default_value
     attr_accessor :example_value
     attr_accessor :values
+
+    def initialize(name = nil, hash = nil)
+      super(hash)
+      @name = name.to_s if name
+    end
+
+    def load_ast_hash!(hash)
+      @description = hash[:description]
+      @type = hash[:type] if hash[:type]
+      @use = (hash[:required] && hash[:required] == true) ? :required : :optional
+      @default_value = hash[:default] if hash[:default]
+      @example_value = hash[:example] if hash[:example]
+      
+      unless hash[:values].blank?
+        @values = Array.new
+        hash[:values].each { |value| @values << value }
+      end
+    end
+
+    def serialize
+      # Parameter name
+      buffer = "#{ONE_INDENTATION_LEVEL}+ #{@name}"
+
+      # Default value
+      buffer << " = `#{@default_value}`" if @default_value    
+    
+      # Attributes
+      unless @type.blank? && @example_value.blank? && @use == :required
+        attribute_buffer = ""
+        
+        buffer << " ("
+        
+        # Type
+        attribute_buffer << @type unless @type.blank?
+
+        # Use
+        if (@use == :optional)
+          attribute_buffer << ", " unless attribute_buffer.empty?
+          attribute_buffer << "optional"
+        end
+
+        # Example value
+        unless (@example_value.blank?)
+          attribute_buffer << ", " unless attribute_buffer.empty?
+          attribute_buffer << "`#{@example_value}`"
+        end
+
+        buffer << attribute_buffer
+        buffer << ")"
+      end
+
+      buffer << "\n"
+
+      # Description
+      unless @description.blank?
+        buffer << "\n"
+        @description.each_line do |line|
+          2.times { buffer << ONE_INDENTATION_LEVEL }
+          buffer << "#{line}"
+        end
+        buffer << "\n"
+      end
+
+      # Value
+      unless @values.blank?
+        2.times { buffer << ONE_INDENTATION_LEVEL }
+        buffer << "+ Values\n"
+        @values.each do |value|
+          3.times { buffer << ONE_INDENTATION_LEVEL }
+          buffer << "+ `#{value}`\n" 
+        end
+      end
+
+      buffer
+    end
   end
 
+  #
+  # Collection of URI parameters
+  #
+  class Parameters < BlueprintNode
+    attr_accessor :collection
+
+    def load_ast_hash!(hash)
+      return if hash.empty?
+
+      @collection = Array.new
+      hash.each do |key, value_hash|
+        @collection << Parameter.new(key, value_hash)
+      end      
+    end
+
+    def serialize
+      return "" if :collection.blank?
+      
+      buffer = "+ Parameters\n"
+      @collection.each do |parameter|
+        buffer << parameter.serialize
+      end
+
+      buffer << "\n" unless @collection.blank?
+      buffer
+    end
+  end
+
+  #
+  # Generic payload base class
+  #
   class Payload < NamedBlueprintNode
     attr_accessor :name
     attr_accessor :description
@@ -69,9 +210,9 @@ module MatterCompiler
     def load_ast_hash!(hash)
       super(hash)
 
-      @body = hash[:body]
-      @schema = hash[:schema]
-      # TODO: Parameters, Headers
+      @headers = Headers.new(hash[:headers]) unless hash[:headers].blank?
+      @body = hash[:body] unless hash[:body].blank?
+      @schema = hash[:schema] unless hash[:schema].blank?
     end
 
     def serialize
@@ -79,64 +220,108 @@ module MatterCompiler
       buffer = ""
 
       unless @description.blank?
-        @description.each_line { |line| buffer << "  #{line}" }
+        buffer << "\n"
+        @description.each_line { |line| buffer << "#{ONE_INDENTATION_LEVEL}#{line}" }
         buffer << "\n"
       end
 
+      unless @headers.blank?
+        buffer << @headers.serialize(1)
+      end
+
       unless @body.blank?
-        buffer << "    + Body\n\n"
-        @body.each_line { |line| buffer << "            #{line}" }
+        buffer << "#{ONE_INDENTATION_LEVEL}+ Body\n\n"
+        @body.each_line do |line| 
+          3.times { buffer << ONE_INDENTATION_LEVEL }
+          buffer << "#{line}"
+        end
         buffer << "\n"
       end
 
       unless @schema.blank?
-        buffer << "    + Schema\n\n"
-        @schema.each_line { |line| buffer << "            #{line}" }
+        buffer << "#{ONE_INDENTATION_LEVEL}+ Schema\n\n"
+        @schema.each_line do |line| 
+          3.times { buffer << ONE_INDENTATION_LEVEL }
+          buffer << "#{line}"
+        end        
         buffer << "\n"
       end
 
-      # TODO: Parameters, Headers
       buffer
-    end    
+    end
+
+    def serialize_lead_in(section_name)
+      buffer = ""
+      buffer << "+ #{section_name}"
+      buffer << " #{@name}" unless @name.blank?
+      buffer << "\n"
+    end
   end
 
+  #
+  # Model Payload
+  #
   class Model < Payload
     def serialize
-      buffer = ""
-      buffer << "+ Model"
-      buffer << " #{@name}" unless @name.blank?
-      buffer << "\n\n"
+      buffer = "+ Model\n"
       buffer << super
     end
   end
 
+  #
+  # Request Payload
+  #
   class Request < Payload
     def serialize
-      buffer = ""
-      buffer << "+ Request"
-      buffer << " #{@name}" unless @name.blank?
-      buffer << "\n\n"
+      buffer = serialize_lead_in("Request")
       buffer << super
     end    
   end
 
+  #
+  # Response Payload
+  #
   class Response < Payload;
     def serialize
-      buffer = ""
-      buffer << "+ Response"
-      buffer << " #{@name}" unless @name.blank?
-      buffer << "\n\n"
+      buffer = serialize_lead_in("Response")
       buffer << super
     end    
   end
 
+  #
+  # Transaction Example
+  #
   class TransactionExample < NamedBlueprintNode
     attr_accessor :name
     attr_accessor :description
     attr_accessor :requests
     attr_accessor :responses
+
+    def load_ast_hash!(hash)
+      super(hash)
+
+      unless hash[:requests].blank?
+        @requests = Array.new
+        hash[:requests].each { |request_hash| @requests << Request.new(request_hash) }
+      end
+
+      unless hash[:responses].blank?
+        @responses = Array.new
+        hash[:responses].each { |response_hash| @responses << Response.new(response_hash) }
+      end
+    end
+
+    def serialize
+      buffer = ""
+      @requests.each { |request| buffer << request.serialize } unless @requests.nil?
+      @responses.each { |response| buffer << response.serialize } unless @responses.nil?
+      buffer
+    end
   end
 
+  #
+  # Action
+  #
   class Action < NamedBlueprintNode
     attr_accessor :method
     attr_accessor :name
@@ -144,8 +329,41 @@ module MatterCompiler
     attr_accessor :parameters
     attr_accessor :headers
     attr_accessor :examples
+
+    def load_ast_hash!(hash)
+      super(hash)
+
+      @method = hash[:method]
+      @parameters = Parameters.new(hash[:parameters]) unless hash[:parameters].blank?
+      @headers = Headers.new(hash[:headers]) unless hash[:headers].blank?
+      
+      unless hash[:examples].blank?
+        @examples = Array.new
+        hash[:examples].each { |example_hash| @examples << TransactionExample.new(example_hash) }
+      end
+    end
+
+    def serialize
+      buffer = ""
+      if @name.blank?
+        buffer << "### #{@method}\n"
+      else
+        buffer << "### #{@name} [#{@method}]\n"
+      end
+
+      buffer << "#{@description}" unless @description.blank?
+
+      buffer << @parameters.serialize unless @parameters.nil?
+      buffer << @headers.serialize unless @headers.nil?
+
+      @examples.each { |example| buffer << example.serialize } unless @examples.nil?
+      buffer
+    end    
   end
   
+  #
+  # Resource
+  #
   class Resource < NamedBlueprintNode
     attr_accessor :uri_template
     attr_accessor :name
@@ -158,8 +376,15 @@ module MatterCompiler
     def load_ast_hash!(hash)
       super(hash)
 
-      @uri_template = hash[:uriTemplate]      
-      # TODO: Load Model, Parameters, Headers, Actions
+      @uri_template = hash[:uriTemplate]
+      @model = Model.new(hash[:model]) unless hash[:model].blank?
+      @parameters = Parameters.new(hash[:parameters]) unless hash[:parameters].blank?
+      @headers = Headers.new(hash[:headers]) unless hash[:headers].blank?
+      
+      unless hash[:actions].blank?
+        @actions = Array.new
+        hash[:actions].each { |action_hash| @actions << Action.new(action_hash) }
+      end
     end
 
     def serialize
@@ -172,11 +397,18 @@ module MatterCompiler
 
       buffer << "#{@description}" unless @description.blank?
 
-      # TODO: Serialize Model, Parameters, Headers, Actions
+      buffer << @model.serialize unless @model.nil?
+      buffer << @parameters.serialize unless @parameters.nil?
+      buffer << @headers.serialize unless @headers.nil?
+
+      @actions.each { |action| buffer << action.serialize } unless @actions.nil?
       buffer
     end
   end
 
+  #
+  # Resource Group
+  #
   class ResourceGroup < NamedBlueprintNode
     attr_accessor :name
     attr_accessor :description
@@ -185,7 +417,7 @@ module MatterCompiler
     def load_ast_hash!(hash)
       super(hash)
 
-      unless hash[:resources].empty?
+      unless hash[:resources].blank?
         @resources = Array.new
         hash[:resources].each { |resource_hash| @resources << Resource.new(resource_hash) }
       end
@@ -201,6 +433,9 @@ module MatterCompiler
     end
   end
 
+  #
+  # Blueprint
+  #
   class Blueprint < NamedBlueprintNode
     attr_accessor :metadata
     attr_accessor :name
@@ -211,12 +446,12 @@ module MatterCompiler
       super(hash)
       
       # Load Metadata
-      unless hash[:metadata].empty?
+      unless hash[:metadata].blank?
         @metadata = Metadata.new(hash[:metadata])
       end
       
       # Load Resource Groups
-      unless hash[:resourceGroups].empty?
+      unless hash[:resourceGroups].blank?
         @resource_groups = Array.new
         hash[:resourceGroups].each { |group_hash| @resource_groups << ResourceGroup.new(group_hash) }
       end
@@ -224,7 +459,7 @@ module MatterCompiler
 
     def serialize
       buffer = ""
-      buffer << "#{@metadata.serialize}\n" unless @metadata.nil?      
+      buffer << "#{@metadata.serialize}" unless @metadata.nil?      
       buffer << "# #{@name}\n" unless @name.blank?
       buffer << "#{@description}" unless @description.blank?
 

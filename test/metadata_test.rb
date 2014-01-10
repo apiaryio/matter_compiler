@@ -10,6 +10,7 @@ class MetadataTest < Minitest::Unit::TestCase
 
   BLUEPRINT = \
 %Q{FORMAT: 1A
+
 }
 
   def test_from_ast_hash

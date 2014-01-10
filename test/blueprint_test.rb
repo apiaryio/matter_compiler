@@ -13,8 +13,7 @@ class BlueprintTest < Minitest::Unit::TestCase
   }
 
   BLUEPRINT = \
-%Q{#{MetadataTest::BLUEPRINT}
-# My API
+%Q{#{MetadataTest::BLUEPRINT}# My API
 Lorem Ipsum
 
 #{ResourceGroupTest::BLUEPRINT}}
@@ -38,6 +37,6 @@ Lorem Ipsum
   def test_serialize
     blueprint = MatterCompiler::Blueprint.new(BlueprintTest::AST_HASH)
     assert_equal BlueprintTest::BLUEPRINT, blueprint.serialize
+    #puts "\n\n>>>\n#{blueprint.serialize}"
   end
-
 end
