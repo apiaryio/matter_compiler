@@ -142,20 +142,26 @@ module MatterCompiler
         buffer << ")"
       end
 
-      buffer << "\n"
-
       # Description
-      unless @description.blank?
-        buffer << "\n"
-        @description.each_line do |line|
-          2.times { buffer << ONE_INDENTATION_LEVEL }
-          buffer << "#{line}"
+      if @description.blank?
+        buffer << "\n"        
+      else
+        if @description.lines.count == 1
+          # One line description
+          buffer << " ... #{@description}"
+        else 
+          # Multi-line description
+          buffer << "\n\n"
+          @description.each_line do |line|
+            2.times { buffer << ONE_INDENTATION_LEVEL }
+            buffer << "#{line}"
+          end
         end
-        buffer << "\n"
       end
 
       # Value
       unless @values.blank?
+        buffer << "\n"
         2.times { buffer << ONE_INDENTATION_LEVEL }
         buffer << "+ Values\n"
         @values.each do |value|

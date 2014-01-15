@@ -40,9 +40,7 @@
                   { "$schema": "http://json-schema.org/draft-03/schema" }
 
       + Parameters
-          + id = `42` (number, optional, `1000`)
-
-              Parameter `id` description.
+          + id = `42` (number, optional, `1000`) ... Parameter `id` description.
 
       ### Retrieve My Resource [GET]
       + Response 200
