@@ -1,8 +1,8 @@
-Then /^the output should match the content file "(.*)"$/ do |filename|
-  exact_output = nil
+Then /^the output should contain the content file "(.*)"$/ do |filename|
+  expected = nil
   in_current_dir do
-    exact_output = File.read(filename)
+    expected = File.read(filename)
   end
 
-  all_output.should == exact_output
+  assert_partial_output(expected, all_output)
 end

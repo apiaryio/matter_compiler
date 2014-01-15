@@ -19,6 +19,7 @@ module MatterCompiler
     end
 
     # Serialize block to a Markdown string
+    # \param level ... optional requested indentation level
     def serialize(level = 0)
     end
   end
@@ -48,15 +49,26 @@ module MatterCompiler
       end
     end
 
-    def serialize(level = 0)
+    # Serialize key value pairs
+    # \param  ignore_keys ... optional array of keys to NOT be serialized
+    def serialize(level = 0, ignore_keys = nil)
       buffer = ""
       @collection.each do |hash|
-        level.times { buffer << ONE_INDENTATION_LEVEL }
-        buffer << "#{hash.keys[0]}: #{hash.values[0]}\n"
+        # Skip ignored keys
+        unless ignore_keys && ignore_keys.include?(hash.keys.first)
+          level.times { buffer << ONE_INDENTATION_LEVEL }
+          buffer << "#{hash.keys.first}: #{hash.values.first}\n"
+        end
       end
 
-      buffer << "\n" unless @collection.blank?
+      buffer << "\n" unless buffer.empty?
       buffer
+    end
+
+    # Returns collection without ignored keys
+    def ignore(ignore_keys)
+      return @collection if ignore_keys.blank?
+      @collection.select { |kv_item| !ignore_keys.include?(kv_item.keys.first) }
     end    
   end
 
@@ -70,14 +82,24 @@ module MatterCompiler
   # Collection of headers 
   #
   class Headers < KeyValueCollection
-    def serialize(level = 0)
-      return "" if @collection.blank?
+
+    CONTENT_TYPE_HEADER_KEY = :'Content-Type'
+
+    def serialize(level = 0, ignore_keys = nil)
+      return "" if @collection.blank? || ignore(ignore_keys).blank?
 
       buffer = ""
       level.times { buffer << ONE_INDENTATION_LEVEL }
       buffer << "+ Headers\n\n"
-      buffer << super(level + 2)
-    end      
+
+      buffer << super(level + 2, ignore_keys)
+    end
+
+    # Returns the value of Content-Type header, if any.
+    def content_type
+      content_type_header = @collection.detect { |header| header.has_key?(CONTENT_TYPE_HEADER_KEY) }
+      return (content_type_header.nil?) ? nil : content_type_header[CONTENT_TYPE_HEADER_KEY]
+    end
   end;
 
   #
@@ -149,6 +171,7 @@ module MatterCompiler
         if @description.lines.count == 1
           # One line description
           buffer << " ... #{@description}"
+          buffer << "\n" if @description[-1, 1] != "\n" # Additional newline needed if no provided
         else 
           # Multi-line description
           buffer << "\n\n"
@@ -232,13 +255,22 @@ module MatterCompiler
       end
 
       unless @headers.blank?
-        buffer << @headers.serialize(1)
+        buffer << @headers.serialize(1, [Headers::CONTENT_TYPE_HEADER_KEY])
       end
 
       unless @body.blank?
-        buffer << "#{ONE_INDENTATION_LEVEL}+ Body\n\n"
+        abbreviated_synax = (headers.blank? || headers.ignore([Headers::CONTENT_TYPE_HEADER_KEY]).blank?) \
+                              & description.blank? \
+                              & schema.blank?
+        asset_indent_level = 2
+        unless abbreviated_synax
+          asset_indent_level = 3
+          buffer << "#{ONE_INDENTATION_LEVEL}+ Body\n"
+        end
+        buffer << "\n"
+
         @body.each_line do |line| 
-          3.times { buffer << ONE_INDENTATION_LEVEL }
+          asset_indent_level.times { buffer << ONE_INDENTATION_LEVEL }
           buffer << "#{line}"
         end
         buffer << "\n"
@@ -253,13 +285,23 @@ module MatterCompiler
         buffer << "\n"
       end
 
+      buffer << "\n" if buffer.empty? # Separate empty payloads by a newline
+
       buffer
     end
 
-    def serialize_lead_in(section_name)
+    # Serialize payload section lead-in (begin)
+    # \param section ... section keyword name 
+    # \param ignore_name ... true to ignore section's name, false otherwise
+    def serialize_lead_in(section, ignore_name = false)
       buffer = ""
-      buffer << "+ #{section_name}"
-      buffer << " #{@name}" unless @name.blank?
+      buffer << "+ #{section}"
+      buffer << " #{@name}" unless ignore_name || @name.blank? 
+
+      unless @headers.blank? || @headers.content_type.blank?
+        buffer << " (#{@headers.content_type})"
+      end
+
       buffer << "\n"
     end
   end
@@ -269,7 +311,7 @@ module MatterCompiler
   #
   class Model < Payload
     def serialize
-      buffer = "+ Model\n"
+      buffer = serialize_lead_in("Model", true)
       buffer << super
     end
   end

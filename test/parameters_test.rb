@@ -13,6 +13,25 @@ class ParametersTest < Minitest::Unit::TestCase
     }
   }
 
+  AST_HASH_MANY = {
+    :id => {
+      :description => "Lorem",
+      :type => nil,
+      :required => true,
+      :default => nil,
+      :example => nil,
+      :values => nil
+    },
+    :search => {
+      :description => "Ipsum",
+      :type => nil,
+      :required => true,
+      :default => nil,
+      :example => nil,
+      :values => nil
+    }    
+  }
+
   BLUEPRINT = \
 %Q{+ Parameters
     + id = `42` (number, optional, `1000`)
@@ -24,6 +43,13 @@ class ParametersTest < Minitest::Unit::TestCase
             + `42`
             + `1000`
             + `1AM4646`
+
+}
+
+  BLUEPRINT_MANY = \
+%Q{+ Parameters
+    + id ... Lorem
+    + search ... Ipsum
 
 }
 
@@ -51,5 +77,8 @@ class ParametersTest < Minitest::Unit::TestCase
   def test_serialize
     parameters = MatterCompiler::Parameters.new(ParametersTest::AST_HASH)
     assert_equal ParametersTest::BLUEPRINT, parameters.serialize
+
+    parameters = MatterCompiler::Parameters.new(ParametersTest::AST_HASH_MANY)
+    assert_equal ParametersTest::BLUEPRINT_MANY, parameters.serialize    
   end
 end

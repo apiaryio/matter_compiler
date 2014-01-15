@@ -96,12 +96,43 @@ class ResponseTest < Minitest::Unit::TestCase
     :schema => nil
   }
 
+  AST_HASH_ABBREV = {
+    :name => "200",
+    :description => nil,
+    :parameters => nil,
+    :headers => HeadersTest::AST_HASH_CONTENT_ONLY,
+    :body => "Hello\nWorld!\n",
+    :schema => nil
+  }
+
+  AST_HASH_EMPTY = {
+    :name => "204",
+    :description => nil,
+    :parameters => nil,
+    :headers => nil,
+    :body => nil,
+    :schema => nil  
+  }
+
   BLUEPRINT = \
-%Q{+ Response 200
-#{HeadersTest::BLUEPRINT_NESTED}    + Body
+%Q{+ Response 200 (text/plain)
+#{HeadersTest::BLUEPRINT_NESTED_IGNORE_CONTENT}    + Body
 
             Hello
             World!
+
+}
+
+  BLUEPRINT_ABBREV = \
+%Q{+ Response 200 (text/plain)
+
+        Hello
+        World!
+
+}
+
+  BLUEPRINT_EMPTY = \
+%Q{+ Response 204
 
 }
 
@@ -120,7 +151,16 @@ class ResponseTest < Minitest::Unit::TestCase
   end
 
   def test_serialize
+    # Full syntax
     response = MatterCompiler::Response.new(ResponseTest::AST_HASH)
     assert_equal ResponseTest::BLUEPRINT, response.serialize
+
+    # Abbreviated syntax
+    response = MatterCompiler::Response.new(ResponseTest::AST_HASH_ABBREV)
+    assert_equal ResponseTest::BLUEPRINT_ABBREV, response.serialize
+
+    # Empty response
+    response = MatterCompiler::Response.new(ResponseTest::AST_HASH_EMPTY)
+    assert_equal ResponseTest::BLUEPRINT_EMPTY, response.serialize
   end
 end

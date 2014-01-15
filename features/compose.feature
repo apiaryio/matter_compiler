@@ -10,14 +10,9 @@
 
       ## /
       ### GET
-      + Response 200
-          + Headers
+      + Response 200 (text/plain)
 
-                  Content-Type: text/plain
-
-          + Body
-
-                  Hello World!
+              Hello World!
 
       # Group Red
       Description of *Red* Group.
@@ -25,10 +20,9 @@
       ## My Resource [/myresource/{id}]
       Description of *My Resource*
 
-      + Model
+      + Model (application/json)
           + Headers
 
-                  Content-Type: application/json
                   X-Header: 1
 
           + Body
@@ -43,10 +37,9 @@
           + id = `42` (number, optional, `1000`) ... Parameter `id` description.
 
       ### Retrieve My Resource [GET]
-      + Response 200
+      + Response 200 (application/json)
           + Headers
 
-                  Content-Type: application/json
                   X-Header: 1
 
           + Body
@@ -58,18 +51,13 @@
                   { "$schema": "http://json-schema.org/draft-03/schema" }
 
       ### Create My Resource [POST]
-      + Request
-          + Headers
+      + Request (text/plain)
 
-                  Content-Type: text/plain
-
-          + Body
-
-                  Ni Hao!
+              Ni Hao!
 
       + Response 204
 
-      """
+"""
 
     And a file named "ast.yaml" with:
       """
@@ -343,17 +331,17 @@
   Scenario: Compose blueprint from an YAML stdin input
     When I run `matter_compiler --format yaml` interactively
     When I pipe in the file "ast.yaml"
-    Then the output should match the content file "blueprint.md"
+    Then the output should contain the content file "blueprint.md"
 
   Scenario: Compose blueprint from an YAML file
     When I run `matter_compiler ast.yaml`
-    Then the output should match the content file "blueprint.md"    
+    Then the output should contain the content file "blueprint.md"    
 
   Scenario: Compose blueprint from a JSON stdin input
     When I run `matter_compiler --format json` interactively
     When I pipe in the file "ast.json"
-    Then the output should match the content file "blueprint.md"
+    Then the output should contain the content file "blueprint.md"
 
   Scenario: Compose blueprint from a JSON file
     When I run `matter_compiler ast.json`
-    Then the output should match the content file "blueprint.md"
+    Then the output should contain the content file "blueprint.md"
