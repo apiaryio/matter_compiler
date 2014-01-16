@@ -345,3 +345,20 @@
   Scenario: Compose blueprint from a JSON file
     When I run `matter_compiler ast.json`
     Then the output should contain the content file "blueprint.md"
+
+
+  Scenario: Copose unsupported version of blueprint AST
+    Given a file named "future_ast.yaml" with:
+    """
+    _version: 42000.0.0
+    metadata:
+    name:
+    description:
+    resourceGroups:
+    """
+    When I run `matter_compiler future_ast.yaml`
+    Then it should fail with:
+    """
+    unsupported AST version
+    """
+

@@ -72,6 +72,11 @@ module MatterCompiler
         abort "Undefined input format"
       end
 
+      # Check version of the AST
+      unless Blueprint::SUPPORTED_VERSIONS.include?(ast_hash[Blueprint::VERSION_KEY].to_s)
+        abort("unsupported AST version: '#{ast_hash[Blueprint::VERSION_KEY]}'\n")
+      end
+
       # Process the AST hash
       blueprint = Blueprint.new(ast_hash)
 

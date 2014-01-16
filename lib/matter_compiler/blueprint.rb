@@ -490,6 +490,9 @@ module MatterCompiler
     attr_accessor :description
     attr_accessor :resource_groups
 
+    VERSION_KEY = :_version
+    SUPPORTED_VERSIONS = ["1.0"]
+
     def load_ast_hash!(hash)
       super(hash)
       
@@ -514,5 +517,6 @@ module MatterCompiler
       @resource_groups.each { |group| buffer << group.serialize } unless @resource_groups.nil?
       buffer
     end
+
   end
 end
