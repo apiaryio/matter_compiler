@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Zdenek Nemec"]
   spec.email         = ["z@apiary.io"]
   spec.summary       = %q{API Blueprint AST to API Blueprint convertor}
-  spec.description   = nil
+  spec.description   = %q{Matter Compiler is a API Blueprint AST Media Types to API Blueprint conversion tool. It composes an API blueprint from its serialzed AST media-type.}
   spec.homepage      = ""
   spec.license       = "MIT"
 

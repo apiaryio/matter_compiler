@@ -1,5 +1,6 @@
 require 'optparse'
 require 'matter_compiler/composer'
+require 'matter_compiler/version'
 
 module MatterCompiler
   
