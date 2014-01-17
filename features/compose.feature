@@ -331,20 +331,20 @@
   Scenario: Compose blueprint from an YAML stdin input
     When I run `matter_compiler --format yaml` interactively
     When I pipe in the file "ast.yaml"
-    Then the output should contain the content file "blueprint.md"
+    Then the output should contain the content of file "blueprint.md"
 
   Scenario: Compose blueprint from an YAML file
     When I run `matter_compiler ast.yaml`
-    Then the output should contain the content file "blueprint.md"    
+    Then the output should contain the content of file "blueprint.md"    
 
   Scenario: Compose blueprint from a JSON stdin input
     When I run `matter_compiler --format json` interactively
     When I pipe in the file "ast.json"
-    Then the output should contain the content file "blueprint.md"
+    Then the output should contain the content of file "blueprint.md"
 
   Scenario: Compose blueprint from a JSON file
     When I run `matter_compiler ast.json`
-    Then the output should contain the content file "blueprint.md"
+    Then the output should contain the content of file "blueprint.md"
 
 
   Scenario: Copose unsupported version of blueprint AST
