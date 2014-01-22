@@ -1,7 +1,7 @@
 require 'minitest/autorun'
 require 'matter_compiler/blueprint'
 
-class ParametersTest < Minitest::Unit::TestCase
+class ParametersTest < Minitest::Test
   AST_HASH = {
     :id => {
       :description => "Lorem\nIpsum\n",

@@ -2,7 +2,7 @@ require 'minitest/autorun'
 require 'matter_compiler/blueprint'
 require_relative 'resource_test'
 
-class ResourceGroupTest < Minitest::Unit::TestCase
+class ResourceGroupTest < Minitest::Test
   AST_HASH = {
     :name => "My Resource Group",
     :description => "Lorem Ipsum at [Apiary](http://apiary.io)\n\n",

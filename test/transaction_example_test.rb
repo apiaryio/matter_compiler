@@ -2,7 +2,7 @@ require 'minitest/autorun'
 require 'matter_compiler/blueprint'
 require_relative 'payload_test'
 
-class TransactionExampleTest < Minitest::Unit::TestCase
+class TransactionExampleTest < Minitest::Test
   AST_HASH = {
     :name => "",
     :description => "",

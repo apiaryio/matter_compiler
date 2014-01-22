@@ -3,7 +3,7 @@ require 'matter_compiler/blueprint'
 require_relative 'resource_group_test'
 require_relative 'metadata_test'
 
-class BlueprintTest < Minitest::Unit::TestCase
+class BlueprintTest < Minitest::Test
   AST_HASH = {
     :_version => 1.0,
     :metadata => MetadataTest::AST_HASH,

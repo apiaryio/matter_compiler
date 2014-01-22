@@ -7,7 +7,7 @@ require_relative 'headers_test'
 # with model test used as an archetype for payload.
 #
 
-class ModelTest < Minitest::Unit::TestCase
+class ModelTest < Minitest::Test
   AST_HASH = {
     :name => "My Resource",
     :description => "Lorem ipsum dolor sit amet.\n",
@@ -48,7 +48,7 @@ class ModelTest < Minitest::Unit::TestCase
   end
 end
 
-class RequestTest < Minitest::Unit::TestCase
+class RequestTest < Minitest::Test
   AST_HASH = {
     :name => "Name",
     :description => "Lorem\nIpsum\n",
@@ -86,7 +86,7 @@ class RequestTest < Minitest::Unit::TestCase
   end
 end
 
-class ResponseTest < Minitest::Unit::TestCase
+class ResponseTest < Minitest::Test
   AST_HASH = {
     :name => "200",
     :description => nil,

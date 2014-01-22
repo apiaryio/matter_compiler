@@ -1,7 +1,7 @@
 require 'minitest/autorun'
 require 'matter_compiler/blueprint'
 
-class HeadersTest < Minitest::Unit::TestCase
+class HeadersTest < Minitest::Test
   AST_HASH = {
     :'X-Header' => {
       :value => "1"      

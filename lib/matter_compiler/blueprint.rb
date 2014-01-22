@@ -32,6 +32,18 @@ module MatterCompiler
       @name = hash[:name]
       @description = hash[:description]
     end
+
+    # Ensure a description serialization
+    # ends with two newlines.
+    def ensure_description_newlines(buffer)
+      return if description.blank?
+
+      if description[-1, 1] != "\n"
+        buffer << "\n\n"
+      elsif description.length > 1 && description[-2, 1] != "\n"
+        buffer << "\n"
+      end    
+    end        
   end
 
   #
@@ -269,19 +281,28 @@ module MatterCompiler
         end
         buffer << "\n"
 
+        got_new_line = false
         @body.each_line do |line| 
           asset_indent_level.times { buffer << ONE_INDENTATION_LEVEL }
           buffer << "#{line}"
+          got_new_line = line[-1, 1] == "\n"
         end
+      
+        buffer << "\n" unless got_new_line
         buffer << "\n"
       end
 
       unless @schema.blank?
         buffer << "#{ONE_INDENTATION_LEVEL}+ Schema\n\n"
+
+        got_new_line = false
         @schema.each_line do |line| 
           3.times { buffer << ONE_INDENTATION_LEVEL }
           buffer << "#{line}"
-        end        
+          got_new_line = line[-1, 1] == "\n"
+        end 
+
+        buffer << "\n" unless got_new_line
         buffer << "\n"
       end
 
@@ -400,6 +421,7 @@ module MatterCompiler
       end
 
       buffer << "#{@description}" unless @description.blank?
+      ensure_description_newlines(buffer)
 
       buffer << @parameters.serialize unless @parameters.nil?
       buffer << @headers.serialize unless @headers.nil?
@@ -444,6 +466,7 @@ module MatterCompiler
       end
 
       buffer << "#{@description}" unless @description.blank?
+      ensure_description_newlines(buffer)
 
       buffer << @model.serialize unless @model.nil?
       buffer << @parameters.serialize unless @parameters.nil?
@@ -475,6 +498,7 @@ module MatterCompiler
       buffer = ""
       buffer << "# Group #{@name}\n" unless @name.blank?
       buffer << "#{@description}" unless @description.blank?
+      ensure_description_newlines(buffer)
 
       @resources.each { |resource| buffer << resource.serialize } unless @resources.nil?
       buffer
@@ -513,6 +537,7 @@ module MatterCompiler
       buffer << "#{@metadata.serialize}" unless @metadata.nil?      
       buffer << "# #{@name}\n" unless @name.blank?
       buffer << "#{@description}" unless @description.blank?
+      ensure_description_newlines(buffer)
 
       @resource_groups.each { |group| buffer << group.serialize } unless @resource_groups.nil?
       buffer

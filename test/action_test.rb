@@ -4,7 +4,7 @@ require_relative 'parameters_test'
 require_relative 'headers_test'
 require_relative 'transaction_example_test'
 
-class ActionTest < Minitest::Unit::TestCase
+class ActionTest < Minitest::Test
   AST_HASH = {
     :name => "Into Action",
     :description => "Dolor sit amet\n\n",

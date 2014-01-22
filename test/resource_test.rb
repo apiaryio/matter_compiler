@@ -5,7 +5,7 @@ require_relative 'payload_test'
 require_relative 'parameters_test'
 require_relative 'headers_test'
 
-class ResourceTest < Minitest::Unit::TestCase
+class ResourceTest < Minitest::Test
   AST_HASH = {
     :name => "My Resource",
     :description => "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n\n",
