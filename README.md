@@ -1,5 +1,7 @@
+![logo](https://raw.github.com/apiaryio/api-blueprint/gh-pages/assets/logo_apiblueprint.png) 
+
 # Matter Compiler [![Build Status](https://travis-ci.org/apiaryio/matter_compiler.png?branch=master)](https://travis-ci.org/apiaryio/matter_compiler)
-Matter Compiler is a [API Blueprint AST Media Types](https://github.com/apiaryio/snowcrash/wiki/API-Blueprint-AST-Media-Types) to [API Blueprint](https://apiblueprint.org) conversion tool. It composes an API blueprint from its serialzed AST media-type.
+Matter Compiler is a [API Blueprint AST Media Types](https://github.com/apiaryio/api-blueprint-ast) to [API Blueprint](https://apiblueprint.org) conversion tool. It composes an API blueprint from its serialzed AST media-type.
 
 ## Installation
 Add this line to your application's Gemfile:
