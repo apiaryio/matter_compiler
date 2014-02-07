@@ -532,9 +532,20 @@ module MatterCompiler
       end
     end
 
-    def serialize
+    def serialize(set_blueprint_format = false)
       buffer = ""
-      buffer << "#{@metadata.serialize}" unless @metadata.nil?      
+      
+      if set_blueprint_format
+        buffer << "FORMAT: 1A\n"
+        if @metadata
+          buffer << "#{@metadata.serialize(0, [:FORMAT])}"
+        else
+          buffer << "\n"
+        end
+      else
+        buffer << "#{@metadata.serialize}" unless @metadata.nil?
+      end
+
       buffer << "# #{@name}\n" unless @name.blank?
       buffer << "#{@description}" unless @description.blank?
       ensure_description_newlines(buffer)

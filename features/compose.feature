@@ -346,8 +346,7 @@
     When I run `matter_compiler ast.json`
     Then the output should contain the content of file "blueprint.md"
 
-
-  Scenario: Copose unsupported version of blueprint AST
+  Scenario: Compose unsupported version of blueprint AST
     Given a file named "future_ast.yaml" with:
     """
     _version: 42000.0.0
@@ -361,4 +360,20 @@
     """
     unsupported AST version
     """
+  
+  Scenario: Explicitly set API Blueprint Format
+    Given a file named "no-format.yaml" with:
+    """
+    _version: 1.0
+    metadata:
+    name: My API
+    description:
+    resourceGroups:
+    """
+    When I run `matter_compiler --set-blueprint-format no-format.yaml`
+    Then the output should contain:
+    """
+    FORMAT: 1A
 
+    # My API
+    """

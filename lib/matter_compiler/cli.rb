@@ -29,7 +29,7 @@ module MatterCompiler
 
       case command
       when :compose
-        Composer.compose(args.first, options[:format])
+        Composer.compose(args.first, options[:format], options[:'set-blueprint-format'])
       when :version
         puts MatterCompiler::VERSION
       else
@@ -54,6 +54,11 @@ module MatterCompiler
         opts.on( '-h', '--help') do
           @command = :help
         end
+
+        opts.on( '--set-blueprint-format') do
+          options[:'set-blueprint-format'] = true
+        end
+
       end
 
       options_parser.parse!
@@ -74,6 +79,7 @@ module MatterCompiler
         puts "\t-f, --format (yaml|json)        Set the AST media-type format of the input"
         puts "\t-h, --help                      Show this help"
         puts "\t-v, --version                   Show version"
+        puts "\t--set-blueprint-format          Set API Blueprint format in the output"
         puts "\n"
     end
 

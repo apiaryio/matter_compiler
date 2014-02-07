@@ -46,7 +46,7 @@ module MatterCompiler
 
     # Compose API Blueprint from an AST file.
     # Returns a string with composed API Blueprint.
-    def self.compose(file = nil, format = nil)
+    def self.compose(file = nil, format = nil, set_blueprint_format = false)
       # Read input
       input = nil
       if file.nil?
@@ -81,7 +81,7 @@ module MatterCompiler
       blueprint = Blueprint.new(ast_hash)
 
       # TODO: use $stdout for now, add serialization options later
-      puts blueprint.serialize
+      puts blueprint.serialize(set_blueprint_format)
     end
   
   end
