@@ -446,6 +446,12 @@ module MatterCompiler
     def load_ast_hash!(hash)
       super(hash)
 
+      if hash[:uriTemplate].blank?
+        failure_message = "missing URI template"
+        failure_message << "for resoruce '#{hash[:name]}'" unless hash[:name].blank?
+        abort(failure_message);
+      end
+
       @uri_template = hash[:uriTemplate]
       @model = Model.new(hash[:model]) unless hash[:model].blank?
       @parameters = Parameters.new(hash[:parameters]) unless hash[:parameters].blank?

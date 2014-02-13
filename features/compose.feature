@@ -377,3 +377,45 @@
 
     # My API
     """
+
+  Scenario: Attempt to compose a resource without URI template
+    Given a file named "no-uri-template.yaml" with:
+    """
+    _version: 1.0
+    metadata:
+    name: My API
+    description:
+    resourceGroups:
+    - name:
+      description:
+      resources:
+      - name:
+        description:
+        uriTemplate:
+        model:
+        parameters:
+        headers:
+        actions:
+        - name:
+          description:
+          method: GET
+          parameters:
+          headers:
+          examples:
+          - name:
+            description:
+            requests:
+            responses:
+            - name: 200
+              description:
+              headers:
+                Content-Type:
+                  value: text/plain
+              body: "Hello World!\n"
+              schema:
+    """
+    When I run `matter_compiler no-uri-template.yaml`
+    Then it should fail with:
+    """
+    missing URI template
+    """
