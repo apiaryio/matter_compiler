@@ -10,7 +10,7 @@ GIT
 PATH
   remote: .
   specs:
-    matter_compiler (0.3.0)
+    matter_compiler (0.4.0)
 
 GEM
   remote: https://rubygems.org/

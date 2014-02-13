@@ -447,8 +447,8 @@ module MatterCompiler
       super(hash)
 
       if hash[:uriTemplate].blank?
-        failure_message = "missing URI template"
-        failure_message << "for resoruce '#{hash[:name]}'" unless hash[:name].blank?
+        failure_message = "Invalid input: A resource is missing URI template"
+        failure_message << " ('#{hash[:name]}' resource)" unless hash[:name].blank?
         abort(failure_message);
       end
 
