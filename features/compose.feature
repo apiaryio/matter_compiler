@@ -358,7 +358,7 @@
     When I run `matter_compiler future_ast.yaml`
     Then it should fail with:
     """
-    unsupported AST version
+    Unsupported AST version
     """
   
   Scenario: Explicitly set API Blueprint Format

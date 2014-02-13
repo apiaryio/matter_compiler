@@ -74,7 +74,7 @@ module MatterCompiler
 
       # Check version of the AST
       unless Blueprint::SUPPORTED_VERSIONS.include?(ast_hash[Blueprint::VERSION_KEY].to_s)
-        abort("unsupported AST version: '#{ast_hash[Blueprint::VERSION_KEY]}'\n")
+        abort("Invalid input: Unsupported AST version: '#{ast_hash[Blueprint::VERSION_KEY]}'\n")
       end
 
       # Process the AST hash
