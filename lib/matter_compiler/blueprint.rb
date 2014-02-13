@@ -446,7 +446,7 @@ module MatterCompiler
     def load_ast_hash!(hash)
       super(hash)
 
-      if hash[:uriTemplate].blank?
+      if hash[:uriTemplate].blank? || hash[:uriTemplate][0] != '/'
         failure_message = "Invalid input: A resource is missing URI template"
         failure_message << " ('#{hash[:name]}' resource)" unless hash[:name].blank?
         abort(failure_message);
