@@ -2,11 +2,12 @@ require 'minitest/autorun'
 require 'matter_compiler/blueprint'
 
 class MetadataTest < Minitest::Test
-  AST_HASH = {
-    :FORMAT => {
-      :value => "1A"      
+  AST_HASH = [
+    {
+      :name => "FORMAT",
+      :value => "1A"
     }
-  }
+  ]
 
   BLUEPRINT = \
 %Q{FORMAT: 1A

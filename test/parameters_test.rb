@@ -2,19 +2,25 @@ require 'minitest/autorun'
 require 'matter_compiler/blueprint'
 
 class ParametersTest < Minitest::Test
-  AST_HASH = {
-    :id => {
+  AST_HASH = [
+    {
+      :name => "id",
       :description => "Lorem\nIpsum\n",
       :type => "number",
       :required => false,
       :default => "42",
       :example => "1000",
-      :values => [ "42", "1000", "1AM4646" ]
+      :values => [ 
+        { :value => "42" }, 
+        { :value => "1000"}, 
+        { :value => "1AM4646"}
+      ]
     }
-  }
+  ]
 
-  AST_HASH_MANY = {
-    :id => {
+  AST_HASH_MANY = [
+    {
+      :name => "id",
       :description => "Lorem",
       :type => nil,
       :required => true,
@@ -22,7 +28,8 @@ class ParametersTest < Minitest::Test
       :example => nil,
       :values => nil
     },
-    :search => {
+    {
+      :name => "search",
       :description => "Ipsum",
       :type => nil,
       :required => true,
@@ -30,7 +37,7 @@ class ParametersTest < Minitest::Test
       :example => nil,
       :values => nil
     }    
-  }
+  ]
 
   BLUEPRINT = \
 %Q{+ Parameters
@@ -61,17 +68,17 @@ class ParametersTest < Minitest::Test
 
     parameter = parameters.collection[0]
     assert_equal :id.to_s, parameter.name
-    assert_equal ParametersTest::AST_HASH[:id][:description], parameter.description
-    assert_equal ParametersTest::AST_HASH[:id][:type], parameter.type
+    assert_equal ParametersTest::AST_HASH[0][:description], parameter.description
+    assert_equal ParametersTest::AST_HASH[0][:type], parameter.type
     assert_equal :optional, parameter.use
-    assert_equal ParametersTest::AST_HASH[:id][:default], parameter.default_value
-    assert_equal ParametersTest::AST_HASH[:id][:example], parameter.example_value
+    assert_equal ParametersTest::AST_HASH[0][:default], parameter.default_value
+    assert_equal ParametersTest::AST_HASH[0][:example], parameter.example_value
 
     assert_instance_of Array, parameter.values
-    assert_equal ParametersTest::AST_HASH[:id][:values].length, parameter.values.length
-    assert_equal ParametersTest::AST_HASH[:id][:values][0], parameter.values[0]
-    assert_equal ParametersTest::AST_HASH[:id][:values][1], parameter.values[1]
-    assert_equal ParametersTest::AST_HASH[:id][:values][2], parameter.values[2]
+    assert_equal ParametersTest::AST_HASH[0][:values].length, parameter.values.length
+    assert_equal ParametersTest::AST_HASH[0][:values][0][:value], parameter.values[0]
+    assert_equal ParametersTest::AST_HASH[0][:values][1][:value], parameter.values[1]
+    assert_equal ParametersTest::AST_HASH[0][:values][2][:value], parameter.values[2]
   end
 
   def test_serialize

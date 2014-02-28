@@ -10,7 +10,6 @@ class ActionTest < Minitest::Test
     :description => "Dolor sit amet\n\n",
     :method => "GET",
     :parameters => ParametersTest::AST_HASH,
-    :headers => HeadersTest::AST_HASH,
     :examples => [TransactionExampleTest::AST_HASH]
   }
 
@@ -18,7 +17,7 @@ class ActionTest < Minitest::Test
 %Q{### Into Action [GET]
 Dolor sit amet
 
-#{ParametersTest::BLUEPRINT}#{HeadersTest::BLUEPRINT}#{TransactionExampleTest::BLUEPRINT}}
+#{ParametersTest::BLUEPRINT}#{TransactionExampleTest::BLUEPRINT}}
 
   def test_from_ast_hash
     action = MatterCompiler::Action.new(ActionTest::AST_HASH)
@@ -28,11 +27,7 @@ Dolor sit amet
     
     assert_instance_of MatterCompiler::Parameters, action.parameters
     assert_instance_of Array, action.parameters.collection
-    assert_equal ParametersTest::AST_HASH.keys.length, action.parameters.collection.length
-
-    assert_instance_of MatterCompiler::Headers, action.headers
-    assert_instance_of Array, action.headers.collection
-    assert_equal HeadersTest::AST_HASH.keys.length, action.headers.collection.length
+    assert_equal ParametersTest::AST_HASH.length, action.parameters.collection.length
 
     assert_instance_of Array, action.examples
     assert_equal ActionTest::AST_HASH[:examples].length, action.examples.length

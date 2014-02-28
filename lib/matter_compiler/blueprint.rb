@@ -1,3 +1,5 @@
+require 'object.rb'
+
 # The classes in this module should be 1:1 with the Snow Crash AST
 # counterparts (https://github.com/apiaryio/snowcrash/blob/master/src/Blueprint.h).
 module MatterCompiler
@@ -12,15 +14,15 @@ module MatterCompiler
 
     # Initialize the node
     #
-    # @param hash [Hash, nil] a hash to initialize the node with or nil
-    def initialize(hash = nil)
-      load_ast_hash!(hash) if hash
+    # @param ast [Array, Hash, nil] a hash or array to initialize the node with or nil
+    def initialize(ast = nil)
+      load_ast!(ast) if ast
     end
 
-    # Load AST hash content into node
+    # Load AST object content into node
     #
-    # @param hash [Hash] a hash to load
-    def load_ast_hash!(hash)
+    # @param ast [Array, Hash] an ast object to load
+    def load_ast!(ast)
     end
 
     # Serialize node to a Markdown string buffer
@@ -42,9 +44,9 @@ module MatterCompiler
     attr_accessor :name
     attr_accessor :description
 
-    def load_ast_hash!(hash)
-      @name = hash[:name]
-      @description = hash[:description]
+    def load_ast!(ast)
+      @name = ast[:name]
+      @description = ast[:description]
     end
 
     # Ensure the input string buffer ends with two newlines.
@@ -70,11 +72,11 @@ module MatterCompiler
     
     attr_accessor :collection
 
-    def load_ast_hash!(hash)
-      return if hash.empty?
+    def load_ast!(ast)
+      return if ast.empty?
       @collection = Array.new
-      hash.each do |key, value_hash|
-        @collection << Hash[key, value_hash[:value]]
+      ast.each do |item|
+        @collection << Hash[item[:name].to_sym, item[:value]]
       end
     end
 
@@ -97,7 +99,7 @@ module MatterCompiler
     # Filter collection keys
     # 
     # @returns [Array<Hash>] collection without ignored keys
-    def ignore(ignore_keys)
+    def filter_collection(ignore_keys)
       return @collection if ignore_keys.blank?
       @collection.select { |kv_item| !ignore_keys.include?(kv_item.keys.first) }
     end    
@@ -116,7 +118,7 @@ module MatterCompiler
     CONTENT_TYPE_HEADER_KEY = :'Content-Type'
 
     def serialize(level = 0, ignore_keys = nil)
-      return "" if @collection.blank? || ignore(ignore_keys).blank?
+      return "" if @collection.blank? || filter_collection(ignore_keys).blank?
 
       buffer = ""
       level.times { buffer << ONE_INDENTATION_LEVEL }
@@ -148,23 +150,19 @@ module MatterCompiler
     attr_accessor :example_value
     attr_accessor :values
 
-    def initialize(name = nil, hash = nil)
-      super(hash)
-      
-      @name = name.to_s if name
-    end
+    def load_ast!(ast)
+      super(ast)
 
-    def load_ast_hash!(hash)
-      super(hash)
-
-      @type = hash[:type] if hash[:type]
-      @use = (hash[:required] && hash[:required] == true) ? :required : :optional
-      @default_value = hash[:default] if hash[:default]
-      @example_value = hash[:example] if hash[:example]
+      @type = ast[:type] if ast[:type]
+      @use = (ast[:required] && ast[:required] == true) ? :required : :optional
+      @default_value = ast[:default] if ast[:default]
+      @example_value = ast[:example] if ast[:example]
       
-      unless hash[:values].blank?
+      unless ast[:values].blank?
         @values = Array.new
-        hash[:values].each { |value| @values << value }
+        ast[:values].each do |item| 
+          @values << item[:value]
+        end
       end
     end
 
@@ -241,12 +239,12 @@ module MatterCompiler
 
     attr_accessor :collection
 
-    def load_ast_hash!(hash)
-      return if hash.empty?
+    def load_ast!(ast)
+      return if ast.empty?
 
       @collection = Array.new
-      hash.each do |key, value_hash|
-        @collection << Parameter.new(key, value_hash)
+      ast.each do |item|
+        @collection << Parameter.new(item)
       end      
     end
 
@@ -278,12 +276,12 @@ module MatterCompiler
     attr_accessor :body
     attr_accessor :schema
 
-    def load_ast_hash!(hash)
-      super(hash)
+    def load_ast!(ast)
+      super(ast)
 
-      @headers = Headers.new(hash[:headers]) unless hash[:headers].blank?
-      @body = hash[:body] unless hash[:body].blank?
-      @schema = hash[:schema] unless hash[:schema].blank?
+      @headers = Headers.new(ast[:headers]) unless ast[:headers].blank?
+      @body = ast[:body] unless ast[:body].blank?
+      @schema = ast[:schema] unless ast[:schema].blank?
     end
 
     def serialize
@@ -301,7 +299,7 @@ module MatterCompiler
       end
 
       unless @body.blank?
-        abbreviated_synax = (headers.blank? || headers.ignore([Headers::CONTENT_TYPE_HEADER_KEY]).blank?) \
+        abbreviated_synax = (headers.blank? || headers.filter_collection([Headers::CONTENT_TYPE_HEADER_KEY]).blank?) \
                               & description.blank? \
                               & schema.blank?
         asset_indent_level = 2
@@ -395,17 +393,17 @@ module MatterCompiler
     attr_accessor :requests
     attr_accessor :responses
 
-    def load_ast_hash!(hash)
-      super(hash)
+    def load_ast!(ast)
+      super(ast)
 
-      unless hash[:requests].blank?
+      unless ast[:requests].blank?
         @requests = Array.new
-        hash[:requests].each { |request_hash| @requests << Request.new(request_hash) }
+        ast[:requests].each { |request_ast| @requests << Request.new(request_ast) }
       end
 
-      unless hash[:responses].blank?
+      unless ast[:responses].blank?
         @responses = Array.new
-        hash[:responses].each { |response_hash| @responses << Response.new(response_hash) }
+        ast[:responses].each { |response_ast| @responses << Response.new(response_ast) }
       end
     end
 
@@ -427,19 +425,17 @@ module MatterCompiler
 
     attr_accessor :method
     attr_accessor :parameters
-    attr_accessor :headers
     attr_accessor :examples
 
-    def load_ast_hash!(hash)
-      super(hash)
+    def load_ast!(ast)
+      super(ast)
 
-      @method = hash[:method]
-      @parameters = Parameters.new(hash[:parameters]) unless hash[:parameters].blank?
-      @headers = Headers.new(hash[:headers]) unless hash[:headers].blank?
+      @method = ast[:method]
+      @parameters = Parameters.new(ast[:parameters]) unless ast[:parameters].blank?
       
-      unless hash[:examples].blank?
+      unless ast[:examples].blank?
         @examples = Array.new
-        hash[:examples].each { |example_hash| @examples << TransactionExample.new(example_hash) }
+        ast[:examples].each { |example_ast| @examples << TransactionExample.new(example_ast) }
       end
     end
 
@@ -455,7 +451,6 @@ module MatterCompiler
       ensure_description_newlines(buffer)
 
       buffer << @parameters.serialize unless @parameters.nil?
-      buffer << @headers.serialize unless @headers.nil?
 
       @examples.each { |example| buffer << example.serialize } unless @examples.nil?
       buffer
@@ -474,26 +469,24 @@ module MatterCompiler
     attr_accessor :uri_template
     attr_accessor :model
     attr_accessor :parameters
-    attr_accessor :headers
     attr_accessor :actions
 
-    def load_ast_hash!(hash)
-      super(hash)
+    def load_ast!(ast)
+      super(ast)
 
-      if hash[:uriTemplate].blank? || hash[:uriTemplate][0] != '/'
+      if ast[:uriTemplate].blank? || ast[:uriTemplate][0] != '/'
         failure_message = "Invalid input: A resource is missing URI template"
-        failure_message << " ('#{hash[:name]}' resource)" unless hash[:name].blank?
+        failure_message << " ('#{ast[:name]}' resource)" unless ast[:name].blank?
         abort(failure_message);
       end
 
-      @uri_template = hash[:uriTemplate]
-      @model = Model.new(hash[:model]) unless hash[:model].blank?
-      @parameters = Parameters.new(hash[:parameters]) unless hash[:parameters].blank?
-      @headers = Headers.new(hash[:headers]) unless hash[:headers].blank?
+      @uri_template = ast[:uriTemplate]
+      @model = Model.new(ast[:model]) unless ast[:model].blank?
+      @parameters = Parameters.new(ast[:parameters]) unless ast[:parameters].blank?
       
-      unless hash[:actions].blank?
+      unless ast[:actions].blank?
         @actions = Array.new
-        hash[:actions].each { |action_hash| @actions << Action.new(action_hash) }
+        ast[:actions].each { |action_ast| @actions << Action.new(action_ast) }
       end
     end
 
@@ -510,7 +503,6 @@ module MatterCompiler
 
       buffer << @model.serialize unless @model.nil?
       buffer << @parameters.serialize unless @parameters.nil?
-      buffer << @headers.serialize unless @headers.nil?
 
       @actions.each { |action| buffer << action.serialize } unless @actions.nil?
       buffer
@@ -525,12 +517,12 @@ module MatterCompiler
 
     attr_accessor :resources
 
-    def load_ast_hash!(hash)
-      super(hash)
+    def load_ast!(ast)
+      super(ast)
 
-      unless hash[:resources].blank?
+      unless ast[:resources].blank?
         @resources = Array.new
-        hash[:resources].each { |resource_hash| @resources << Resource.new(resource_hash) }
+        ast[:resources].each { |resource_ast| @resources << Resource.new(resource_ast) }
       end
     end
 
@@ -557,20 +549,20 @@ module MatterCompiler
     attr_accessor :resource_groups
 
     VERSION_KEY = :_version
-    SUPPORTED_VERSIONS = ["1.0"]
+    SUPPORTED_VERSIONS = ["2.0"]
 
-    def load_ast_hash!(hash)
-      super(hash)
+    def load_ast!(ast)
+      super(ast)
       
       # Load Metadata
-      unless hash[:metadata].blank?
-        @metadata = Metadata.new(hash[:metadata])
+      unless ast[:metadata].blank?
+        @metadata = Metadata.new(ast[:metadata])
       end
       
       # Load Resource Groups
-      unless hash[:resourceGroups].blank?
+      unless ast[:resourceGroups].blank?
         @resource_groups = Array.new
-        hash[:resourceGroups].each { |group_hash| @resource_groups << ResourceGroup.new(group_hash) }
+        ast[:resourceGroups].each { |group_ast| @resource_groups << ResourceGroup.new(group_ast) }
       end
     end
 
