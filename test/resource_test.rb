@@ -12,7 +12,6 @@ class ResourceTest < Minitest::Test
     :uriTemplate => "/my-resource/{id}",
     :model => ModelTest::AST_HASH,
     :parameters => ParametersTest::AST_HASH,
-    :headers => HeadersTest::AST_HASH,
     :actions => [ActionTest::AST_HASH]
   }
 
@@ -20,7 +19,7 @@ class ResourceTest < Minitest::Test
 %Q{## My Resource [/my-resource/{id}]
 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
-#{ModelTest::BLUEPRINT}#{ParametersTest::BLUEPRINT}#{HeadersTest::BLUEPRINT}#{ActionTest::BLUEPRINT}}
+#{ModelTest::BLUEPRINT}#{ParametersTest::BLUEPRINT}#{ActionTest::BLUEPRINT}}
 
   def test_from_ast_hash
     resource = MatterCompiler::Resource.new(ResourceTest::AST_HASH)
@@ -33,11 +32,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
     assert_instance_of MatterCompiler::Parameters, resource.parameters
     assert_instance_of Array, resource.parameters.collection
-    assert_equal ParametersTest::AST_HASH.keys.length, resource.parameters.collection.length
-
-    assert_instance_of MatterCompiler::Headers, resource.headers
-    assert_instance_of Array, resource.headers.collection
-    assert_equal HeadersTest::AST_HASH.keys.length, resource.headers.collection.length
+    assert_equal ParametersTest::AST_HASH.length, resource.parameters.collection.length
 
     assert_instance_of Array, resource.actions
     assert_equal ResourceTest::AST_HASH[:actions].length, resource.actions.length

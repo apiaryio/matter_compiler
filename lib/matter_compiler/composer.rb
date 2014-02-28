@@ -74,6 +74,11 @@ module MatterCompiler
 
       # Check version of the AST
       unless Blueprint::SUPPORTED_VERSIONS.include?(ast_hash[Blueprint::VERSION_KEY].to_s)
+
+        if ast_hash[Blueprint::VERSION_KEY].to_s == "1.0"
+          puts "Use matter_compiler v0.4.0 to process AST media types prior AST v2.0"
+        end
+
         abort("Invalid input: Unsupported AST version: '#{ast_hash[Blueprint::VERSION_KEY]}'\n")
       end
 

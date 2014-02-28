@@ -144,7 +144,7 @@ class ResponseTest < Minitest::Test
 
     assert_instance_of MatterCompiler::Headers, response.headers
     assert_instance_of Array, response.headers.collection
-    assert_equal HeadersTest::AST_HASH.keys.length, response.headers.collection.length
+    assert_equal HeadersTest::AST_HASH.length, response.headers.collection.length
 
     assert_equal ResponseTest::AST_HASH[:body], response.body
     assert_equal ResponseTest::AST_HASH[:schema], response.schema

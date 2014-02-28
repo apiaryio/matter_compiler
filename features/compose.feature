@@ -61,11 +61,11 @@
 
     And a file named "ast.yaml" with:
       """
-      _version: 1.0
+      _version: 2.0
       metadata:
-        FORMAT:
-          value: 1A
-      name: My API
+      - name: "FORMAT"
+        value: "1A"
+      name: "My API"
       description: "Description of *My API*.\n\n"
       resourceGroups:
       - name:
@@ -73,78 +73,73 @@
         resources:
         - name:
           description:
-          uriTemplate: /
+          uriTemplate: "/"
           model:
           parameters:
-          headers:
           actions:
           - name:
             description:
-            method: GET
+            method: "GET"
             parameters:
-            headers:
             examples:
             - name:
               description:
               requests:
               responses:
-              - name: 200
+              - name: "200"
                 description:
                 headers:
-                  Content-Type:
-                    value: text/plain
+                - name: "Content-Type"
+                  value: "text/plain"
                 body: "Hello World!\n"
                 schema:
-      - name: Red
+      - name: "Red"
         description: "Description of *Red* Group.\n\n"
         resources:
-        - name: My Resource
+        - name: "My Resource"
           description: "Description of *My Resource*\n\n"
           uriTemplate: "/myresource/{id}"
           model:
-            name: My Resource
+            name: "My Resource"
             description:
             headers:
-              Content-Type:
-                value: application/json
-              X-Header:
-                value: 1
+            - name: "Content-Type"
+              value: "application/json"
+            - name: "X-Header"
+              value: "1"
             body: "{ \"message\": \"Hello World\" }\n"
             schema: "{ \"$schema\": \"http://json-schema.org/draft-03/schema\" }\n"
           parameters:
-            id:
-              description: "Parameter `id` description.\n"
-              type: number
-              required: false
-              default: 42
-              example: 1000
-              values:
-          headers:
+          - name: "id"
+            description: "Parameter `id` description."
+            type: "number"
+            required: false
+            default: "42"
+            example: "1000"
+            values:
           actions:
-          - name: Retrieve My Resource
+          - name: "Retrieve My Resource"
             description:
-            method: GET
+            method: "GET"
             parameters:
-            headers:
             examples:
             - name:
               description:
               requests:
               responses:
-              - name: 200
+              - name: "200"
                 description:
                 headers:
-                  Content-Type:
-                    value: application/json
-                  X-Header:
-                    value: 1
+                - name: "Content-Type"
+                  value: "application/json"
+                - name: "X-Header"
+                  value: "1"
                 body: "{ \"message\": \"Hello World\" }\n"
                 schema: "{ \"$schema\": \"http://json-schema.org/draft-03/schema\" }\n"
-          - name: Create My Resource
+          - name: "Create My Resource"
             description:
-            method: POST
+            method: "POST"
             parameters:
-            headers:
             examples:
             - name:
               description:
@@ -152,28 +147,28 @@
               - name:
                 description:
                 headers:
-                  Content-Type:
-                    value: text/plain
+                - name: "Content-Type"
+                  value: "text/plain"
                 body: "Ni Hao!\n"
                 schema:
               responses:
-              - name: 204
+              - name: "204"
                 description:
                 headers:
                 body:
                 schema:
-
       """
 
     And a file named "ast.json" with:
       """
       {
-        "_version": "1.0",
-        "metadata": {
-          "FORMAT": {
+        "_version": "2.0",
+        "metadata": [
+          {
+            "name": "FORMAT",
             "value": "1A"
           }
-        },
+        ],
         "name": "My API",
         "description": "Description of *My API*.\n\n",
         "resourceGroups": [
@@ -186,15 +181,13 @@
                 "description": "",
                 "uriTemplate": "/",
                 "model": {},
-                "parameters": {},
-                "headers": {},
+                "parameters": [],
                 "actions": [
                   {
                     "name": "",
                     "description": "",
                     "method": "GET",
-                    "parameters": {},
-                    "headers": {},
+                    "parameters": [],
                     "examples": [
                       {
                         "name": "",
@@ -204,11 +197,12 @@
                           {
                             "name": "200",
                             "description": "",
-                            "headers": {
-                              "Content-Type": {
+                            "headers": [
+                              {
+                                "name": "Content-Type",
                                 "value": "text/plain"
                               }
-                            },
+                            ],
                             "body": "Hello World!\n",
                             "schema": ""
                           }
@@ -229,37 +223,38 @@
                 "description": "Description of *My Resource*\n\n",
                 "uriTemplate": "/myresource/{id}",
                 "model": {
-                    "name": "My Resource",
-                    "description": "",
-                    "headers": {
-                      "Content-Type": {
-                        "value": "application/json"
-                      },
-                      "X-Header": {
-                        "value": "1"
-                      }
+                  "name": "My Resource",
+                  "description": "",
+                  "headers": [
+                    {
+                      "name": "Content-Type",
+                      "value": "application/json"
                     },
-                    "body": "{ \"message\": \"Hello World\" }\n",
-                    "schema": "{ \"$schema\": \"http://json-schema.org/draft-03/schema\" }\n"
-                  },
-                "parameters": {
-                  "id": {
-                    "description": "Parameter `id` description.\n",
+                    {
+                      "name": "X-Header",
+                      "value": "1"
+                    }
+                  ],
+                  "body": "{ \"message\": \"Hello World\" }\n",
+                  "schema": "{ \"$schema\": \"http://json-schema.org/draft-03/schema\" }\n"
+                },
+                "parameters": [
+                  {
+                    "name": "id",
+                    "description": "Parameter `id` description.",
                     "type": "number",
                     "required": false,
                     "default": "42",
                     "example": "1000",
                     "values": []
                   }
-                },
-                "headers": {},
+                ],
                 "actions": [
                   {
                     "name": "Retrieve My Resource",
                     "description": "",
                     "method": "GET",
-                    "parameters": {},
-                    "headers": {},
+                    "parameters": [],
                     "examples": [
                       {
                         "name": "",
@@ -269,14 +264,16 @@
                           {
                             "name": "200",
                             "description": "",
-                            "headers": {
-                              "Content-Type": {
+                            "headers": [
+                              {
+                                "name": "Content-Type",
                                 "value": "application/json"
                               },
-                              "X-Header": {
+                              {
+                                "name": "X-Header",
                                 "value": "1"
                               }
-                            },
+                            ],
                             "body": "{ \"message\": \"Hello World\" }\n",
                             "schema": "{ \"$schema\": \"http://json-schema.org/draft-03/schema\" }\n"
                           }
@@ -288,8 +285,7 @@
                     "name": "Create My Resource",
                     "description": "",
                     "method": "POST",
-                    "parameters": {},
-                    "headers": {},
+                    "parameters": [],
                     "examples": [
                       {
                         "name": "",
@@ -298,11 +294,12 @@
                           {
                             "name": "",
                             "description": "",
-                            "headers": {
-                              "Content-Type": {
+                            "headers": [
+                              {
+                                "name": "Content-Type",
                                 "value": "text/plain"
                               }
-                            },
+                            ],
                             "body": "Ni Hao!\n",
                             "schema": ""
                           }
@@ -311,7 +308,7 @@
                           {
                             "name": "204",
                             "description": "",
-                            "headers": {},
+                            "headers": [],
                             "body": "",
                             "schema": ""
                           }
@@ -325,7 +322,6 @@
           }
         ]
       }
-
       """
 
   Scenario: Compose blueprint from an YAML stdin input
@@ -364,7 +360,7 @@
   Scenario: Explicitly set API Blueprint Format
     Given a file named "no-format.yaml" with:
     """
-    _version: 1.0
+    _version: 2.0
     metadata:
     name: My API
     description:
@@ -381,7 +377,7 @@
   Scenario: Attempt to compose a resource without URI template
     Given a file named "no-uri-template.yaml" with:
     """
-    _version: 1.0
+    _version: 2.0
     metadata:
     name: My API
     description:
@@ -409,8 +405,6 @@
             - name: 200
               description:
               headers:
-                Content-Type:
-                  value: text/plain
               body: "Hello World!\n"
               schema:
     """

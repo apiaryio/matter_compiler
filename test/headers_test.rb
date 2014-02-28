@@ -2,20 +2,23 @@ require 'minitest/autorun'
 require 'matter_compiler/blueprint'
 
 class HeadersTest < Minitest::Test
-  AST_HASH = {
-    :'X-Header' => {
+  AST_HASH = [
+    {
+      :name => "X-Header",
       :value => "1"      
     },
-    :'Content-Type' => {
+    {
+      :name => "Content-Type",
       :value => "text/plain"
     }
-  }
+  ]
 
-  AST_HASH_CONTENT_ONLY = {
-    :'Content-Type' => {
+  AST_HASH_CONTENT_ONLY = [
+    {
+      :name => "Content-Type",
       :value => "text/plain"
-    }
-  }  
+    }    
+  ]
 
   BLUEPRINT = \
 %Q{+ Headers
