@@ -66,9 +66,19 @@ module MatterCompiler
       ast_hash = nil;
       case input_format
       when :json_ast
-        ast_hash = JSON.parse(input).deep_symbolize_keys
+        begin
+          ast_hash = JSON.parse(input).deep_symbolize_keys
+        rescue JSON::ParserError
+          puts "Invalid JSON input"
+          exit
+        end
       when :yaml_ast
-        ast_hash = YAML.load(input).deep_symbolize_keys
+        begin
+          ast_hash = YAML.load(input).deep_symbolize_keys
+        rescue Psych::SyntaxError
+          puts "Invalid YAML input"
+          exit
+        end
       else
         abort "Undefined input format"
       end
