@@ -6,12 +6,12 @@ require 'object'
 module MatterCompiler
 
   class Composer
-  
-    # Read AST file 
+
+    # Read AST file
     def self.read_file(file)
       unless File.readable?(file)
         abort "Unable to read input ast file: #{file.inspect}"
-      end      
+      end
       input = File.read(file)
     end
 
@@ -31,7 +31,7 @@ module MatterCompiler
         return :yaml_ast
       else
         return :unknown_ast
-      end      
+      end
     end
 
     # Guess format from filename extension.
@@ -51,9 +51,10 @@ module MatterCompiler
       input = nil
       if file.nil?
         input = self.read_stdin
-      else 
+      else
         input = self.read_file(file)
       end
+      input = input.strip
 
       if input.blank?
         puts "Empty input"
@@ -88,7 +89,7 @@ module MatterCompiler
       # TODO: use $stdout for now, add serialization options later
       puts blueprint.serialize(set_blueprint_format)
     end
-  
+
   end
 
 end
