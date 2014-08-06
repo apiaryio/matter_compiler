@@ -16,17 +16,17 @@ class ComposerTest < Minitest::Test
     file = Tempfile.new('test.json')
     file.close
 
-    stdout = StringIO.new
-    $stdout = stdout
+    stderr = StringIO.new
+    $stderr = stderr
 
     begin
       MatterCompiler::Composer.compose(file.path, :json_ast)
     rescue SystemExit
     ensure
-      assert_equal "Empty input\n", stdout.string
+      assert_equal "Empty input\n", stderr.string
 
       file.unlink
-      $stdout = STDOUT
+      $stderr = STDERR
     end
   end
 
@@ -35,17 +35,17 @@ class ComposerTest < Minitest::Test
     file.write("\n\n\n\n\n")
     file.close
 
-    stdout = StringIO.new
-    $stdout = stdout
+    stderr = StringIO.new
+    $stderr = stderr
 
     begin
       MatterCompiler::Composer.compose(file.path, :json_ast)
     rescue SystemExit
     ensure
-      assert_equal "Empty input\n", stdout.string
+      assert_equal "Empty input\n", stderr.string
 
       file.unlink
-      $stdout = STDOUT
+      $stderr = STDERR
     end
   end
 
@@ -54,17 +54,17 @@ class ComposerTest < Minitest::Test
     file.write("{\n:-(")
     file.close
 
-    stdout = StringIO.new
-    $stdout = stdout
+    stderr = StringIO.new
+    $stderr = stderr
 
     begin
       MatterCompiler::Composer.compose(file.path, :json_ast)
     rescue SystemExit
     ensure
-      assert_equal "Invalid JSON input\n", stdout.string
+      assert_equal "Invalid JSON input\n", stderr.string
 
       file.unlink
-      $stdout = STDOUT
+      $stderr = STDERR
     end
   end
 
@@ -73,17 +73,17 @@ class ComposerTest < Minitest::Test
     file.write("@@@@@\n:-(")
     file.close
 
-    stdout = StringIO.new
-    $stdout = stdout
+    stderr = StringIO.new
+    $stderr = stderr
 
     begin
       MatterCompiler::Composer.compose(file.path, :yaml_ast)
     rescue SystemExit
     ensure
-      assert_equal "Invalid YAML input\n", stdout.string
+      assert_equal "Invalid YAML input\n", stderr.string
 
       file.unlink
-      $stdout = STDOUT
+      $stderr = STDERR
     end
   end
 
