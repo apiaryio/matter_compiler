@@ -6,12 +6,12 @@ require 'object'
 module MatterCompiler
 
   class Composer
-  
-    # Read AST file 
+
+    # Read AST file
     def self.read_file(file)
       unless File.readable?(file)
         abort "Unable to read input ast file: #{file.inspect}"
-      end      
+      end
       input = File.read(file)
     end
 
@@ -31,7 +31,7 @@ module MatterCompiler
         return :yaml_ast
       else
         return :unknown_ast
-      end      
+      end
     end
 
     # Guess format from filename extension.
@@ -51,9 +51,10 @@ module MatterCompiler
       input = nil
       if file.nil?
         input = self.read_stdin
-      else 
+      else
         input = self.read_file(file)
       end
+      input = input.strip
 
       if input.blank?
         puts "Empty input"
@@ -65,9 +66,19 @@ module MatterCompiler
       ast_hash = nil;
       case input_format
       when :json_ast
-        ast_hash = JSON.parse(input).deep_symbolize_keys
+        begin
+          ast_hash = JSON.parse(input).deep_symbolize_keys
+        rescue JSON::ParserError
+          puts "Invalid JSON input"
+          exit
+        end
       when :yaml_ast
-        ast_hash = YAML.load(input).deep_symbolize_keys
+        begin
+          ast_hash = YAML.load(input).deep_symbolize_keys
+        rescue Psych::SyntaxError
+          puts "Invalid YAML input"
+          exit
+        end
       else
         abort "Undefined input format"
       end
@@ -88,7 +99,7 @@ module MatterCompiler
       # TODO: use $stdout for now, add serialization options later
       puts blueprint.serialize(set_blueprint_format)
     end
-  
+
   end
 
 end
