@@ -5,6 +5,9 @@ require 'object'
 
 module MatterCompiler
 
+  class BadInputException < Exception
+  end
+
   class Composer
 
     # Read AST file
@@ -44,6 +47,26 @@ module MatterCompiler
       self.parse_format(extension[1..-1])
     end
 
+    def self.parse_json(input)
+      begin
+        ast_hash = JSON.parse(input).deep_symbolize_keys
+      rescue JSON::ParserError
+        raise BadInputException, "Invalid JSON input"
+      end
+    end
+
+    def self.parse_yaml(input)
+      begin
+        ast_hash = YAML.load(input).deep_symbolize_keys
+      rescue Psych::SyntaxError
+        raise BadInputException, "Invalid YAML input"
+      end
+      if not ast_hash.is_a?(Hash)
+        raise BadInputException, "Invalid AST"
+      end
+      ast_hash
+    end
+
     # Compose API Blueprint from an AST file.
     # Returns a string with composed API Blueprint.
     def self.compose(file = nil, format = nil, set_blueprint_format = false)
@@ -57,30 +80,23 @@ module MatterCompiler
       input = input.strip
 
       if input.blank?
-        puts "Empty input"
-        exit
+        abort("Empty input")
       end
 
       # Parse input
       input_format = format ? format : self.guess_format(file)
       ast_hash = nil;
-      case input_format
-      when :json_ast
-        begin
-          ast_hash = JSON.parse(input).deep_symbolize_keys
-        rescue JSON::ParserError
-          puts "Invalid JSON input"
-          exit
+      begin
+        case input_format
+        when :json_ast
+          ast_hash = self.parse_json(input)
+        when :yaml_ast
+          ast_hash = self.parse_yaml(input)
+        else
+          raise BadInputException, "Undefined input format"
         end
-      when :yaml_ast
-        begin
-          ast_hash = YAML.load(input).deep_symbolize_keys
-        rescue Psych::SyntaxError
-          puts "Invalid YAML input"
-          exit
-        end
-      else
-        abort "Undefined input format"
+      rescue BadInputException => e
+        abort(e.message)
       end
 
       # Check version of the AST
