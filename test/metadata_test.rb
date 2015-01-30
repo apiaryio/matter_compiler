@@ -22,6 +22,10 @@ class MetadataTest < Minitest::Test
     assert_equal "1A", metadata.collection[0][:FORMAT]
   end
 
+  def test_empty_metadata
+    metadata = MatterCompiler::Metadata.new([{}])
+  end
+
   def test_serialize
     metadata = MatterCompiler::Metadata.new(MetadataTest::AST_HASH)
     assert_equal MetadataTest::BLUEPRINT, metadata.serialize
