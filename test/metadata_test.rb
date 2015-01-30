@@ -24,6 +24,7 @@ class MetadataTest < Minitest::Test
 
   def test_empty_metadata
     metadata = MatterCompiler::Metadata.new([{}])
+    assert_equal 0, metadata.collection.length
   end
 
   def test_serialize
