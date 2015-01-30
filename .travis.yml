@@ -10,4 +10,8 @@ notifications:
     on_success: change
     on_failure: always
   hipchat:
-    secure: "m5NzHq8NoO6dvKFCgOuo8sV3ALe601IcZ4nvFSmmG79tx9YhwC5dOaZ0YgihZrLvdyxRDe7Tf9jtgicMkZ//uEiQ8+0qkXvxRkfu8KbdR09JbkbkkgoD3mIvw5f09H0HDhddZWcPHmBOjjGLrlWlBXfbqBX3gEHpHeumWdJ6nRA="
+    rooms:
+      secure: "m5NzHq8NoO6dvKFCgOuo8sV3ALe601IcZ4nvFSmmG79tx9YhwC5dOaZ0YgihZrLvdyxRDe7Tf9jtgicMkZ//uEiQ8+0qkXvxRkfu8KbdR09JbkbkkgoD3mIvw5f09H0HDhddZWcPHmBOjjGLrlWlBXfbqBX3gEHpHeumWdJ6nRA="
+    template:
+      - '%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message} (<a href="%{build_url}">Details</a>/<a href="%{compare_url}">Change view</a>)'
+    format: html
