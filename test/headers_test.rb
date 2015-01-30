@@ -20,6 +20,12 @@ class HeadersTest < Minitest::Test
     }    
   ]
 
+  AST_HASH_AUTH_LEGACY = [
+    {
+      "Authorization" => "****token****"
+    }
+  ]
+
   BLUEPRINT = \
 %Q{+ Headers
 
@@ -64,6 +70,13 @@ class HeadersTest < Minitest::Test
     assert_equal "text/plain", headers.collection[1][:'Content-Type']
 
     assert_equal "text/plain", headers.content_type    
+  end
+
+  def test_legacy_headers
+    headers = headers = MatterCompiler::Headers.new(HeadersTest::AST_HASH_AUTH_LEGACY)
+    assert_equal 1, headers.collection.length
+    assert_equal :'Authorization', headers.collection[0].keys[0]
+    assert_equal '****token****', headers.collection[0][:'Authorization']
   end
 
   def test_serialize
