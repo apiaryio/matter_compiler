@@ -3,6 +3,10 @@
 # Matter Compiler [![Build Status](https://travis-ci.org/apiaryio/matter_compiler.png?branch=master)](https://travis-ci.org/apiaryio/matter_compiler)
 Matter Compiler is a [API Blueprint AST Media Types](https://github.com/apiaryio/api-blueprint-ast) to [API Blueprint](https://apiblueprint.org) conversion tool. It composes an API blueprint from its serialzed AST media-type.
 
+**NOTE**: *This library is deprecated in favour of
+[fury](https://github.com/apiaryio/fury) and the [Fury API Blueprint
+Serializer](https://github.com/apiaryio/fury-adapter-apib-serializer).*
+
 ## Installation
 Add this line to your application's Gemfile:
 
