@@ -76,7 +76,13 @@ module MatterCompiler
       return if ast.empty?
       @collection = Array.new
       ast.each do |item|
-        @collection << Hash[item[:name].to_sym, item[:value]]
+        if item.has_key?("Authorization")
+          item[:name] = "Authorization"
+          item[:value] = item['Authorization']
+        end
+        unless item.empty?
+          @collection << Hash[item[:name].to_sym, item[:value]]
+        end
       end
     end
 
